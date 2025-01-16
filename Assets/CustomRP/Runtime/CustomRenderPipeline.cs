@@ -16,4 +16,8 @@ public class CustomRenderPipeline : RenderPipeline
             renderer.Render(context, cameras[i]);
         }
     }
+
+    public CustomRenderPipeline() {
+        GraphicsSettings.useScriptableRenderPipelineBatching = true;
+    }
 }
