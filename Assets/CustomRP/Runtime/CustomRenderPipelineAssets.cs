@@ -7,9 +7,13 @@ using UnityEngine.Rendering;
 // RP asset的目标是给Unity指向其需要控制的负责渲染的管线对象实例
 public class CustomRenderPipelineAssets : RenderPipelineAsset
 {
+    // SRP batch和GPU Instance需要shader中的支持，这里可以选择是否启用
+    [SerializeField]
+    bool useDynamicBatching = true, useGPUInstancing = true, useSRPBatcher = true;
+    
     // 覆写CreatePipeline方法，并且属性是protected保证只有RenderPipelineAsset及其子类可以调用它
     protected override RenderPipeline CreatePipeline() {
         // 返回一个合法可用的pipeline
-        return new CustomRenderPipeline();
+        return new CustomRenderPipeline(useDynamicBatching, useGPUInstancing, useSRPBatcher);
     }
 }
