@@ -11,6 +11,10 @@ public class PerObjectMaterialProperties : MonoBehaviour
     
     static MaterialPropertyBlock block;
 
+    void Awake() {
+        OnValidate();
+    }
+    
     private void OnValidate() {
         if (block == null) {
             block = new MaterialPropertyBlock();
@@ -18,5 +22,7 @@ public class PerObjectMaterialProperties : MonoBehaviour
         block.SetColor(baseColorId, baseColor);
         GetComponent<Renderer>().SetPropertyBlock(block);
     }
+    
+    
     
 }

@@ -7,19 +7,35 @@
 // {
 //     float4 _BaseColor;
 // };
+UNITY_INSTANCING_BUFFER_START(UnityPerMaterial)
+    UNITY_DEFINE_INSTANCED_PROP(float4, _BaseColor)
+UNITY_INSTANCING_BUFFER_END(UnityPerMaterial)
 
-CBUFFER_START(UnityPerMaterial)
-    float4 _BaseColor;
-CBUFFER_END
-
-float4 UnlitPassVertex(float3 positionOS : POSITION):SV_POSITION
+struct Attributes
 {
-    float3 positionWS = TransformObjectToWorld(positionOS.xyz);
-    return TransformWorldToHClip(positionWS);
+    float3 positionOS : POSITION;
+    UNITY_VERTEX_INPUT_INSTANCE_ID
+};
+
+struct Varings
+{
+    float4 positionCS : SV_POSITION;
+    UNITY_VERTEX_INPUT_INSTANCE_ID
+};
+
+Varings UnlitPassVertex(Attributes input)
+{
+    Varings output;
+    UNITY_SETUP_INSTANCE_ID(input);
+    UNITY_TRANSFER_INSTANCE_ID(input, output);
+    float3 positionWS = TransformObjectToWorld(input.positionOS);
+    output.positionCS = TransformWorldToHClip(positionWS);
+    return output;
 }
 
-float4 UnlitPassFragment():SV_TARGET
+float4 UnlitPassFragment(Varings input):SV_TARGET
 {
-    return _BaseColor;
+    UNITY_SETUP_INSTANCE_ID(input);
+    return UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _BaseColor);
 }
 #endif
