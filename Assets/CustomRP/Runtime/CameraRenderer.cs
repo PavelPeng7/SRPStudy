@@ -11,7 +11,9 @@ public partial class CameraRenderer : MonoBehaviour
     Camera camera;
     CullingResults cullingResults;
     
-    static ShaderTagId unlitShaderTagId = new ShaderTagId("SRPDefaultUnlit");
+    static ShaderTagId 
+        unlitShaderTagId = new ShaderTagId("SRPDefaultUnlit"),
+        litShaderTagId = new ShaderTagId("CustomLit");
 
     public void Render(ScriptableRenderContext context, Camera camera, bool useDynamicBatching, bool useGPUInstancing) {
         this.context = context;
@@ -57,6 +59,7 @@ public partial class CameraRenderer : MonoBehaviour
             enableDynamicBatching = useDynamicBatching,
             enableInstancing = useGPUInstancing
         };
+        drawingSettings.SetShaderPassName(1, litShaderTagId);
         var filteringSettings = new FilteringSettings(RenderQueueRange.opaque);
         
         context.DrawSkybox(camera);
