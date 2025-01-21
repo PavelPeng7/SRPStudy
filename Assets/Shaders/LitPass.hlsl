@@ -62,8 +62,6 @@ float4 LitPassFragment(Varings input):SV_TARGET
         clip(base.a - UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _Cutoff));
     #endif
     
-    clip(base.a - UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _Cutoff));
-
     Surface surface;
     surface.normal = normalize(input.normalWS);
     surface.viewDirection = normalize(_WorldSpaceCameraPos - input.positionWS);
@@ -72,9 +70,14 @@ float4 LitPassFragment(Varings input):SV_TARGET
     surface.metallic = UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _Metallic);
     surface.smoothness = UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _Smoothness);
     
+    #if defined(_PREMULTIPLY_ALPHA)
+        BRDF brdf = GetBRDF(surface, true);
+    #else
+        BRDF brdf = GetBRDF(surface);
+    #endif
+    
 
-    BRDF brdf = GetBRDF(surface);
     float3 color = GetLighting(surface, brdf);
-    return float4(color, surface.alpha);
+    return float4(color.rgb, surface.alpha);
 }
 #endif
