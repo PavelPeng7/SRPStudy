@@ -15,6 +15,9 @@ public partial class CameraRenderer : MonoBehaviour
         unlitShaderTagId = new ShaderTagId("SRPDefaultUnlit"),
         litShaderTagId = new ShaderTagId("CustomLit");
 
+    Lighting lighting = new Lighting();
+    
+
     public void Render(ScriptableRenderContext context, Camera camera, bool useDynamicBatching, bool useGPUInstancing) {
         this.context = context;
         this.camera = camera;
@@ -25,6 +28,7 @@ public partial class CameraRenderer : MonoBehaviour
         }
         
         Setup();
+        lighting.Setup(context, cullingResults);
         DrawVisibleGeometry(useDynamicBatching, useGPUInstancing);
         DrawUnsupportedShaders();
         DrawGizmos();

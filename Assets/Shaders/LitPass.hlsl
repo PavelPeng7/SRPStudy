@@ -3,6 +3,7 @@
 
 #include "../ShaderLibrary/Common.hlsl"
 #include "../ShaderLibrary/Surface.hlsl"
+#include "../ShaderLibrary/Light.hlsl"
 #include "../ShaderLibrary/Lighting.hlsl"
 // OpenGL ES 2.0不支持Cbuffer所以我们得换种写法
 // cbuffer UnityPerMaterial
@@ -43,7 +44,7 @@ Varings LitPassVertex(Attributes input)
     output.positionCS = TransformWorldToHClip(positionWS);
     float4 baseST = UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _BaseMap_ST);
     output.baseUV = input.baseUV * baseST.xy + baseST.zw;
-    output.normalWS = TransformObjectToWorld(input.normalOS);
+    output.normalWS = TransformObjectToWorldNormal(input.normalOS);
     return output;
 }
 
@@ -58,8 +59,6 @@ float4 LitPassFragment(Varings input):SV_TARGET
     #endif
     
     clip(base.a - UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _Cutoff));
-    base.rgb = abs(length(input.normalWS - 1.0) * 10.0);;
-    base.rgb =  normalize(input.normalWS);
 
     Surface surface;
     surface.normal = normalize(input.normalWS);
