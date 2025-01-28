@@ -13,6 +13,7 @@ Shader "Custom RP/Lit"
         [Enum(Off, 0, On, 1)] _ZWrite("ZWrite", Float) = 1
         [Toggle(_PREMULTIPLY_ALPHA)] _PremulAlpha("Premultiply Alpha", Float) = 0
     }
+    
     SubShader
     {
         Pass
@@ -33,7 +34,24 @@ Shader "Custom RP/Lit"
             #include "LitPass.hlsl"
             ENDHLSL
         }
-    }
-    CustomEditor "CustomShaderGUI"
     
+    Pass
+    {
+        Tags
+        {
+            "LightMode" = "ShadowCaster"
+        }
+        
+        ColorMask 0
+        
+        HLSLPROGRAM
+        #pragma target 3.5
+        #pragma shader_feature_CLIPPING
+        #pragma multi_compile_instancing
+        #pragma vertex ShadowCasterPassVertex
+        #pragma fragment ShadowCasterPassFragment
+        #include "ShadowCasterPass.hlsl"
+        ENDHLSL
+    }
+   } 
 }
