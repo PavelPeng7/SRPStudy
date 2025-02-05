@@ -19,11 +19,28 @@ public class ShadowSettings
     {
         // 方向光阴影贴图大小，默认为 1024
         public MapSize atlasSize;
+        
+        [Range(1, 4)]
+        public int cascadeCount;
+        
+        [Range(0f, 1f)]
+        public float cascadeRatio1, cascadeRatio2, cascadeRatio3;
+        
+        public Vector3 CascadeRatios =>
+            new Vector3(cascadeRatio1, cascadeRatio2, cascadeRatio3);
     }
 
     // 创建默认方向光阴影设置
     public Directional directional = new Directional
     {
-        atlasSize = MapSize._1024
+        atlasSize = MapSize._1024,
+        cascadeCount = 4,
+        cascadeRatio1 = 0.1f,
+        cascadeRatio2 = 0.25f,
+        cascadeRatio3 = 0.5f
     };
+    
+
+
+
 }

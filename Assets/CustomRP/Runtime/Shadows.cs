@@ -12,7 +12,7 @@ public class Shadows
     ShadowSettings settings;
     
     // 最大支持一个带阴影的方向光（初始配置）
-    const int maxShadowedDirectionalLightCount = 4;
+    const int maxShadowedDirectionalLightCount = 4, maxCascades = 4;
     struct ShadowedDirectionalLight {
         public int visibleLightIndex;
     }
@@ -25,7 +25,7 @@ public class Shadows
         dirShadowMatricesId = Shader.PropertyToID("_DirectionalShadowMatrices");
 
     private static Matrix4x4[]
-        dirShadowMatrices = new Matrix4x4[maxShadowedDirectionalLightCount];
+        dirShadowMatrices = new Matrix4x4[maxShadowedDirectionalLightCount * maxCascades];
     
     public void Setup(ScriptableRenderContext context, CullingResults cullingResults, ShadowSettings settings) {
         this.context = context;
@@ -44,7 +44,7 @@ public class Shadows
             ) 
         {
             shadowedDirectionalLights[ShadowedDirectionalLightCount] = new ShadowedDirectionalLight { visibleLightIndex = visibleLightIndex };
-            return new Vector2(light.shadowStrength, ShadowedDirectionalLightCount++);
+            return new Vector2(light.shadowStrength, settings.directional.cascadeCount * ShadowedDirectionalLightCount++);
         }
         return Vector2.zero;
     }
@@ -65,8 +65,9 @@ public class Shadows
         buffer.ClearRenderTarget(true, false, Color.clear);
         buffer.BeginSample(bufferName);
         ExecuteBuffer();
-
-        int split = ShadowedDirectionalLightCount <= 1 ? 1 : 2;
+        
+        int tiles = ShadowedDirectionalLightCount * settings.directional.cascadeCount;
+        int split = tiles <= 1 ? 1 : tiles <= 4 ? 2 : 4;
         int tileSize = atlasSize / split;
         
         // 渲染每个光源的阴影
@@ -83,14 +84,21 @@ public class Shadows
     void RenderDirectionalShadows(int index, int split, int tileSize) {
         ShadowedDirectionalLight light = shadowedDirectionalLights[index];
         var shadowSettings = new ShadowDrawingSettings(cullingResults, light.visibleLightIndex, BatchCullingProjectionType.Orthographic);
-        cullingResults.ComputeDirectionalShadowMatricesAndCullingPrimitives(light.visibleLightIndex, 0, 1, Vector3.zero, tileSize, 0f, out Matrix4x4 viewMatrix, out Matrix4x4 projectionMatrix, out ShadowSplitData splitData);
-        shadowSettings.splitData = splitData;
-        // 从世界空间转换到光源空间通过乘以光源的阴影投影矩阵和观察矩阵
-        dirShadowMatrices[index] = ConvertToAtlasMatrix(projectionMatrix * viewMatrix, SetTileViewport(index, split, tileSize), split);
-        dirShadowMatrices[index] = projectionMatrix * viewMatrix;
-        buffer.SetViewProjectionMatrices(viewMatrix, projectionMatrix);
-        ExecuteBuffer();
-        context.DrawShadows(ref shadowSettings);
+        int cascadeCount = settings.directional.cascadeCount;
+        int tileOffset = index * cascadeCount;
+        Vector3 ratios = settings.directional.CascadeRatios;
+
+        for (int i = 0; i < cascadeCount; i++) {
+            cullingResults.ComputeDirectionalShadowMatricesAndCullingPrimitives(light.visibleLightIndex, i, cascadeCount, ratios, tileSize, 0f, out Matrix4x4 viewMatrix, out Matrix4x4 projectionMatrix, out ShadowSplitData splitData
+            );
+            shadowSettings.splitData = splitData;
+            int tileIndex = tileOffset + i;
+            // 从世界空间转换到光源空间通过乘以光源的阴影投影矩阵和观察矩阵
+            dirShadowMatrices[tileIndex] = ConvertToAtlasMatrix(projectionMatrix * viewMatrix, SetTileViewport(tileIndex, split, tileSize), split);
+            buffer.SetViewProjectionMatrices(viewMatrix, projectionMatrix);
+            ExecuteBuffer();
+            context.DrawShadows(ref shadowSettings);
+        }
     }
     
     // 将世界坐标转换到 Shadow Atlas 贴图的 Tile 空间的矩阵
