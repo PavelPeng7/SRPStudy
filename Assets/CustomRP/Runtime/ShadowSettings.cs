@@ -39,8 +39,4 @@ public class ShadowSettings
         cascadeRatio2 = 0.25f,
         cascadeRatio3 = 0.5f
     };
-    
-
-
-
 }
