@@ -29,11 +29,9 @@ Light GetDirectionalLight(int index, Surface surfaceWS)
 {
     Light light;
     light.color = _DirectionalLightColors[index].rgb;
-    light.direction = _DirectionalLightDirections[index];
-    
+    light.direction = _DirectionalLightDirections[index].xyz;
     DirectionalShadowData shadowData = GetDirectionalShadowData(index);
     light.attenuation = GetDirectionalShadowAttenuation(shadowData, surfaceWS);
-    
     return light;
 }
 

@@ -56,6 +56,7 @@ public class Lighting : MonoBehaviour
         buffer.SetGlobalInt(dirLightCountId, dirLightCount);
         buffer.SetGlobalVectorArray(dirLightColorsId, dirLightColors);
         buffer.SetGlobalVectorArray(dirLightDirectionsId, dirLightDirections);
+        // 设置阴影数据
         buffer.SetGlobalVectorArray(dirLightShadowDataId, dirLightShadowData);
     }
     

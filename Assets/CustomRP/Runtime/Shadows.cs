@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.Rendering;
 
-public class Shadows
+public class Shadows 
 {
     const string bufferName = "Shadows";
     CommandBuffer buffer = new CommandBuffer {
@@ -19,7 +19,7 @@ public class Shadows
     ShadowedDirectionalLight[] shadowedDirectionalLights = new ShadowedDirectionalLight[maxShadowedDirectionalLightCount];
     int ShadowedDirectionalLightCount;
 
-    // Shader属性ID
+    // 每个直射光的阴影变换矩阵id
     private static int
         dirShadowAtlasId = Shader.PropertyToID("_DirectionalShadowAtlas"),
         dirShadowMatricesId = Shader.PropertyToID("_DirectionalShadowMatrices");
@@ -37,10 +37,13 @@ public class Shadows
     }
     
     public Vector2 ReserveDirectionalShadows(Light light, int visibleLightIndex) {
-        if (ShadowedDirectionalLightCount < maxShadowedDirectionalLightCount && light.shadows != LightShadows.None && light.shadowStrength > 0f && cullingResults.GetShadowCasterBounds(visibleLightIndex, out Bounds b)) {
-            shadowedDirectionalLights[ShadowedDirectionalLightCount] = new ShadowedDirectionalLight {
-                visibleLightIndex = visibleLightIndex
-            };
+        // 如果阴影光源数量未达到最大值，且光源有阴影，且阴影强度大于0，且光源有阴影投射体则返回
+        if (ShadowedDirectionalLightCount < maxShadowedDirectionalLightCount &&
+            light.shadows != LightShadows.None && light.shadowStrength > 0f &&
+            cullingResults.GetShadowCasterBounds(visibleLightIndex, out Bounds b)
+            ) 
+        {
+            shadowedDirectionalLights[ShadowedDirectionalLightCount] = new ShadowedDirectionalLight { visibleLightIndex = visibleLightIndex };
             return new Vector2(light.shadowStrength, ShadowedDirectionalLightCount++);
         }
         return Vector2.zero;
@@ -82,30 +85,45 @@ public class Shadows
         var shadowSettings = new ShadowDrawingSettings(cullingResults, light.visibleLightIndex, BatchCullingProjectionType.Orthographic);
         cullingResults.ComputeDirectionalShadowMatricesAndCullingPrimitives(light.visibleLightIndex, 0, 1, Vector3.zero, tileSize, 0f, out Matrix4x4 viewMatrix, out Matrix4x4 projectionMatrix, out ShadowSplitData splitData);
         shadowSettings.splitData = splitData;
+        // 从世界空间转换到光源空间通过乘以光源的阴影投影矩阵和观察矩阵
         dirShadowMatrices[index] = ConvertToAtlasMatrix(projectionMatrix * viewMatrix, SetTileViewport(index, split, tileSize), split);
         dirShadowMatrices[index] = projectionMatrix * viewMatrix;
         buffer.SetViewProjectionMatrices(viewMatrix, projectionMatrix);
         ExecuteBuffer();
         context.DrawShadows(ref shadowSettings);
     }
-
+    
+    // 将世界坐标转换到 Shadow Atlas 贴图的 Tile 空间的矩阵
     Matrix4x4 ConvertToAtlasMatrix(Matrix4x4 m, Vector2 offset, int split) {
+        // 在某些图形 API (Vulkan, DirectX) 中，Z 缓冲是反向的，即 1.0 代表最接近相机，0.0 代表最远。
         if (SystemInfo.usesReversedZBuffer) {
+            // Z轴取反，以确保 阴影采样 (Shadow Sampling) 兼容所有平台。
             m.m20 = -m.m20;
             m.m21 = -m.m21;
             m.m22 = -m.m22;
             m.m23 = -m.m23;
         }
 
+        // 计算tile的大小
         float scale = 1f / split;
+        
+        // 将Clip Space(-1, 1)转换到Shadow Atlas UV(0,1), 并加上偏移量
+        // [ m00  m01  m02  m03 ]   // 第一列: X 轴变换
+        // [ m10  m11  m12  m13 ]   // 第二列: Y 轴变换
+        // [ m20  m21  m22  m23 ]   // 第三列: Z 轴变换
+        // [ m30  m31  m32  m33 ]   // 第四列: 透视投影 (w 分量）在下面用来抵消透视除法
         m.m00 = (0.5f * (m.m00 + m.m30) + offset.x * m.m30) * scale;
         m.m01 = (0.5f * (m.m01 + m.m31) + offset.x * m.m31) * scale;
         m.m02 = (0.5f * (m.m02 + m.m32) + offset.x * m.m32) * scale;
         m.m03 = (0.5f * (m.m03 + m.m33) + offset.x * m.m33) * scale;
-        m.m10 = (0.5f * (m.m10 + m.m30) + offset.x * m.m30) * scale;
-        m.m11 = (0.5f * (m.m11 + m.m31) + offset.x * m.m31) * scale;
-        m.m12 = (0.5f * (m.m12 + m.m32) + offset.x * m.m32) * scale;
-        m.m13 = (0.5f * (m.m13 + m.m33) + offset.x * m.m33) * scale;
+        m.m10 = (0.5f * (m.m10 + m.m30) + offset.y * m.m30) * scale;
+        m.m11 = (0.5f * (m.m11 + m.m31) + offset.y * m.m31) * scale;
+        m.m12 = (0.5f * (m.m12 + m.m32) + offset.y * m.m32) * scale;
+        m.m13 = (0.5f * (m.m13 + m.m33) + offset.y * m.m33) * scale;
+        m.m20 = 0.5f * (m.m20 + m.m30);
+        m.m21 = 0.5f * (m.m21 + m.m31);
+        m.m22 = 0.5f * (m.m22 + m.m32);
+        m.m23 = 0.5f * (m.m23 + m.m33);
         return m;
     }
     
