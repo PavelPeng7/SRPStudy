@@ -22,7 +22,11 @@ public class Shadows
     // 每个直射光的阴影变换矩阵id
     private static int
         dirShadowAtlasId = Shader.PropertyToID("_DirectionalShadowAtlas"),
-        dirShadowMatricesId = Shader.PropertyToID("_DirectionalShadowMatrices");
+        dirShadowMatricesId = Shader.PropertyToID("_DirectionalShadowMatrices"),
+        cascadeCountId = Shader.PropertyToID("_CascadeCount"),
+        cascadeCullingSpheresId = Shader.PropertyToID("_CascadeCullingSpheres");
+    
+    static Vector4[] cascadeCullingSpheres = new Vector4[maxCascades];
 
     private static Matrix4x4[]
         dirShadowMatrices = new Matrix4x4[maxShadowedDirectionalLightCount * maxCascades];
@@ -75,6 +79,8 @@ public class Shadows
             RenderDirectionalShadows(i, split, tileSize);
         }
         
+        buffer.SetGlobalInt(cascadeCountId, settings.directional.cascadeCount);
+        buffer.SetGlobalVectorArray(cascadeCullingSpheresId, cascadeCullingSpheres);
         // 传递阴影矩阵到Shader
         buffer.SetGlobalMatrixArray(dirShadowMatricesId, dirShadowMatrices);
         buffer.EndSample(bufferName);
@@ -92,6 +98,11 @@ public class Shadows
             cullingResults.ComputeDirectionalShadowMatricesAndCullingPrimitives(light.visibleLightIndex, i, cascadeCount, ratios, tileSize, 0f, out Matrix4x4 viewMatrix, out Matrix4x4 projectionMatrix, out ShadowSplitData splitData
             );
             shadowSettings.splitData = splitData;
+            if (index == 0) {
+                Vector4 cullingSphere = splitData.cullingSphere;
+                cullingSphere.w *= cullingSphere.w;
+                cascadeCullingSpheres[i] = cullingSphere;
+            }
             int tileIndex = tileOffset + i;
             // 从世界空间转换到光源空间通过乘以光源的阴影投影矩阵和观察矩阵
             dirShadowMatrices[tileIndex] = ConvertToAtlasMatrix(projectionMatrix * viewMatrix, SetTileViewport(tileIndex, split, tileSize), split);
