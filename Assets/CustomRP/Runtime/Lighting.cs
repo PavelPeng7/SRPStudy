@@ -69,7 +69,4 @@ public class Lighting : MonoBehaviour
     public void Cleanup() {
         shadows.Cleanup();
     }
-    
-    
-    
 }
