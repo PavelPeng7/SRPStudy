@@ -19,6 +19,7 @@ public class Shadows
     struct ShadowedDirectionalLight
     {
         public int visibleLightIndex;
+        public float slopeScaleBias;
     }
 
     ShadowedDirectionalLight[] shadowedDirectionalLights = new ShadowedDirectionalLight[maxShadowedDirectionalLightCount];
@@ -56,11 +57,16 @@ public class Shadows
             light.shadows != LightShadows.None && light.shadowStrength > 0f &&
             cullingResults.GetShadowCasterBounds(visibleLightIndex, out Bounds b)
            ) {
-            shadowedDirectionalLights[ShadowedDirectionalLightCount] = new ShadowedDirectionalLight { visibleLightIndex = visibleLightIndex };
-            return new Vector2(light.shadowStrength, settings.directional.cascadeCount * ShadowedDirectionalLightCount++);
+            shadowedDirectionalLights[ShadowedDirectionalLightCount] = new ShadowedDirectionalLight {
+                visibleLightIndex = visibleLightIndex, 
+                slopeScaleBias = light.shadowBias
+            };
+            return new Vector3(
+                light.shadowStrength,
+                settings.directional.cascadeCount * ShadowedDirectionalLightCount++,
+                light.shadowNormalBias);
         }
-
-        return Vector2.zero;
+        return Vector3.zero;
     }
 
     public void Render() {
@@ -128,10 +134,10 @@ public class Shadows
             // 从世界空间转换到光源空间通过乘以光源的阴影投影矩阵和观察矩阵
             dirShadowMatrices[tileIndex] = ConvertToAtlasMatrix(projectionMatrix * viewMatrix, SetTileViewport(tileIndex, split, tileSize), split);
             buffer.SetViewProjectionMatrices(viewMatrix, projectionMatrix);
-            // buffer.SetGlobalDepthBias(0f, 3f);
+            buffer.SetGlobalDepthBias(0f, light.slopeScaleBias);
             ExecuteBuffer();
             context.DrawShadows(ref shadowSettings);
-            // buffer.SetGlobalDepthBias(0f, 0f);
+            buffer.SetGlobalDepthBias(0f, 0f);
         }
     }
 
