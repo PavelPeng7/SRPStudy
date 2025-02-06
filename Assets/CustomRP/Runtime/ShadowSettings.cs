@@ -4,8 +4,12 @@ using UnityEngine;
 public class ShadowSettings
 {
     // 定义最大阴影距离，默认为 100，最小值为 0
-    [Min(0f)]
+    [Min(0.001f)]
     public float maxDistance = 100f;
+    
+    [Range(0.001f, 1f)]
+    public float distanceFade = 0.1f;
+    
 
     // 定义阴影贴图大小，使用 2 的幂，范围从 256 到 8192
     public enum MapSize
@@ -28,6 +32,9 @@ public class ShadowSettings
         
         public Vector3 CascadeRatios =>
             new Vector3(cascadeRatio1, cascadeRatio2, cascadeRatio3);
+        
+        [Range(0.001f, 1f)]
+        public float cascadeFade;
     }
 
     // 创建默认方向光阴影设置
@@ -37,6 +44,7 @@ public class ShadowSettings
         cascadeCount = 4,
         cascadeRatio1 = 0.1f,
         cascadeRatio2 = 0.25f,
-        cascadeRatio3 = 0.5f
+        cascadeRatio3 = 0.5f,
+        cascadeFade = 0.1f
     };
 }
