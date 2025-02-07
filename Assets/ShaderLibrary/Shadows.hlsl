@@ -56,6 +56,7 @@ ShadowData GetShadowData(Surface surfaceWS)
 {
     ShadowData data;
     // data.strength = surfaceWS.depth < _ShadowDistance ? 1.0 : 0.0;
+    
     data.cascadeBlend = 1.0;
     data.strength = FadedShadowStrength(surfaceWS.depth, _ShadowDistanceFade.x, _ShadowDistanceFade.y);
     int i;
@@ -82,6 +83,15 @@ ShadowData GetShadowData(Surface surfaceWS)
     {
         data.strength = 0.0;
     }
+    #if !defined(_CASCADE_BLEND_SOFT)
+        else if (data.cascadeBlend < surfaceWS.dither)
+        {
+            i += 1;
+        }
+    #endif
+    #if !defined(_CASCADE_BLEND_SOFT)
+        data.cascadeBlend = 1.0;
+    #endif
     data.cascadeIndex = i;
     return data;
 }

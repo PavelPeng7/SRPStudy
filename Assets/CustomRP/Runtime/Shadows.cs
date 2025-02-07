@@ -37,6 +37,11 @@ public class Shadows
         shadowAtlasSizeId = Shader.PropertyToID("_ShadowAtlasSize"),
         shadowDistanceFadeId = Shader.PropertyToID("_ShadowDistanceFade");
     
+    static string[] cascadeBlendKeywords = {
+        "_CASCADE_SHADOWS_SOFT",
+        "_CASCADE_SHADOWS_DITHER"
+    };
+    
     static string[] directionalFilterKeywords = {
         "_DIRECTIONAL_PCF3",
         "_DIRECTIONAL_PCF5",
@@ -92,7 +97,8 @@ public class Shadows
         buffer.GetTemporaryRT(dirShadowAtlasId, atlasSize, atlasSize, 32, FilterMode.Bilinear, RenderTextureFormat.Shadowmap);
         buffer.SetRenderTarget(dirShadowAtlasId, RenderBufferLoadAction.DontCare, RenderBufferStoreAction.Store);
         buffer.ClearRenderTarget(true, false, Color.clear);
-        SetKeywords();
+        SetKeywords(directionalFilterKeywords, (int)settings.directional.filter - 1);
+        SetKeywords(cascadeBlendKeywords, (int)settings.directional.cascadeBlend - 1);
         buffer.SetGlobalVector(shadowAtlasSizeId, new Vector4(atlasSize, 1f / atlasSize));
         buffer.BeginSample(bufferName);
         ExecuteBuffer();
@@ -121,19 +127,17 @@ public class Shadows
         float f = 1f - settings.directional.cascadeFade;
         buffer.SetGlobalVector(shadowDistanceFadeId, new Vector4(1f / settings.maxDistance, 1f / settings.distanceFade, 1f / (1f - f * f)));
         
-        
         buffer.EndSample(bufferName);
         ExecuteBuffer();
     }
 
-    void SetKeywords() {
-        int enabledIndex = (int)settings.directional.filter - 1;
-        for (int i = 0; i < directionalFilterKeywords.Length; i++) {
+    void SetKeywords(string[] keywords, int enabledIndex) {
+        for (int i = 0; i < keywords.Length; i++) {
             if(i == enabledIndex) {
-                buffer.EnableShaderKeyword(directionalFilterKeywords[i]);
+                buffer.EnableShaderKeyword(keywords[i]);
             }
             else {
-                buffer.DisableShaderKeyword(directionalFilterKeywords[i]);
+                buffer.DisableShaderKeyword(keywords[i]);
             }
         }
     }
