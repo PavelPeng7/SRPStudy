@@ -34,7 +34,14 @@ public class Shadows
         cascadeCullingSpheresId = Shader.PropertyToID("_CascadeCullingSpheres"),
         // shadowDistanceId = Shader.PropertyToID("_ShadowDistance"),
         cascadeDataId = Shader.PropertyToID("_CascadeData"),
+        shadowAtlasSizeId = Shader.PropertyToID("_ShadowAtlasSize"),
         shadowDistanceFadeId = Shader.PropertyToID("_ShadowDistanceFade");
+    
+    static string[] directionalFilterKeywords = {
+        "_DIRECTIONAL_PCF3",
+        "_DIRECTIONAL_PCF5",
+        "_DIRECTIONAL_PCF7",
+    };
 
     static Vector4[]
         cascadeCullingSpheres = new Vector4[maxCascades],
@@ -85,6 +92,8 @@ public class Shadows
         buffer.GetTemporaryRT(dirShadowAtlasId, atlasSize, atlasSize, 32, FilterMode.Bilinear, RenderTextureFormat.Shadowmap);
         buffer.SetRenderTarget(dirShadowAtlasId, RenderBufferLoadAction.DontCare, RenderBufferStoreAction.Store);
         buffer.ClearRenderTarget(true, false, Color.clear);
+        SetKeywords();
+        buffer.SetGlobalVector(shadowAtlasSizeId, new Vector4(atlasSize, 1f / atlasSize));
         buffer.BeginSample(bufferName);
         ExecuteBuffer();
 
@@ -117,6 +126,18 @@ public class Shadows
         ExecuteBuffer();
     }
 
+    void SetKeywords() {
+        int enabledIndex = (int)settings.directional.filter - 1;
+        for (int i = 0; i < directionalFilterKeywords.Length; i++) {
+            if(i == enabledIndex) {
+                buffer.EnableShaderKeyword(directionalFilterKeywords[i]);
+            }
+            else {
+                buffer.DisableShaderKeyword(directionalFilterKeywords[i]);
+            }
+        }
+    }
+
     void RenderDirectionalShadows(int index, int split, int tileSize) {
         ShadowedDirectionalLight light = shadowedDirectionalLights[index];
         var shadowSettings = new ShadowDrawingSettings(cullingResults, light.visibleLightIndex, BatchCullingProjectionType.Orthographic);
@@ -146,9 +167,11 @@ public class Shadows
 
     void SetCascadeData(int index, Vector4 cullingSphere, float tileSize) {
         float texelSize = 2f * cullingSphere.w / tileSize;
+        float filterSize = texelSize * ((float)settings.directional.filter + 1f);
+        cullingSphere.w -= filterSize;
         cullingSphere.w *= cullingSphere.w;
         cascadeCullingSpheres[index] = cullingSphere;
-        cascadeData[index] = new Vector4(1f / cullingSphere.w, texelSize * 1.4142136f);
+        cascadeData[index] = new Vector4(1f / cullingSphere.w, filterSize * 1.4142136f);
     }
 
     // 将世界坐标转换到 Shadow Atlas 贴图的 Tile 空间的矩阵

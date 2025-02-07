@@ -3,6 +3,10 @@ using UnityEngine;
 [System.Serializable]
 public class ShadowSettings
 {
+    public enum FilterMode
+    {
+        PCF2x2, PCF3x3, PCF5x5, PCF7x7
+    }
     // 定义最大阴影距离，默认为 100，最小值为 0
     [Min(0.001f)]
     public float maxDistance = 100f;
@@ -24,6 +28,8 @@ public class ShadowSettings
         // 方向光阴影贴图大小，默认为 1024
         public MapSize atlasSize;
         
+        public FilterMode filter;
+        
         [Range(1, 4)]
         public int cascadeCount;
         
@@ -41,6 +47,7 @@ public class ShadowSettings
     public Directional directional = new Directional
     {
         atlasSize = MapSize._1024,
+        filter = FilterMode.PCF2x2,
         cascadeCount = 4,
         cascadeRatio1 = 0.1f,
         cascadeRatio2 = 0.25f,
