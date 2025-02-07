@@ -4,7 +4,7 @@ using Unity.Collections;
 using UnityEngine;
 using UnityEngine.Rendering;
 
-public class Lighting : MonoBehaviour
+public class Lighting
 {
     const string bufferName = "Lighting";
     

@@ -4,7 +4,7 @@ using UnityEngine.Profiling;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering;
 
-partial class CameraRenderer : MonoBehaviour
+partial class CameraRenderer 
 {
     partial void DrawUnsupportedShaders();
     partial void DrawGizmos();

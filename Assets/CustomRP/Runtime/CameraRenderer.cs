@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.Rendering;
 
-public partial class CameraRenderer : MonoBehaviour
+public partial class CameraRenderer
 {
     private ScriptableRenderContext context;
     const string bufferName = "Render Camera";
