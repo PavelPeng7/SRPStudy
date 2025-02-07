@@ -11,12 +11,11 @@ Material:
   m_Shader: {fileID: 4800000, guid: fe477732fc88845b784792c249a39095, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
-  m_ValidKeywords:
-  - _CLIPPING
-  - _SHADOWS_CLIP
-  m_InvalidKeywords: []
+  m_ValidKeywords: []
+  m_InvalidKeywords:
+  - _SHADOWS_ON
   m_LightmapFlags: 4
-  m_EnableInstancingVariants: 1
+  m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
   m_CustomRenderQueue: 3000
   stringTagMap: {}
@@ -68,8 +67,8 @@ Material:
     m_Ints: []
     m_Floats:
     - _BumpScale: 1
-    - _Clipping: 1
-    - _Cutoff: 0.728
+    - _Clipping: 0
+    - _Cutoff: 0
     - _DetailNormalMapScale: 1
     - _DstBlend: 10
     - _GlossMapScale: 1
@@ -80,7 +79,7 @@ Material:
     - _OcclusionStrength: 1
     - _Parallax: 0.02
     - _PremulAlpha: 0
-    - _Shadows: 1
+    - _Shadows: 0
     - _Smoothness: 0.557
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
