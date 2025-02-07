@@ -64,7 +64,7 @@ public class Shadows
         ShadowedDirectionalLightCount = 0;
     }
 
-    public Vector2 ReserveDirectionalShadows(Light light, int visibleLightIndex) {
+    public Vector3 ReserveDirectionalShadows(Light light, int visibleLightIndex) {
         // 如果阴影光源数量未达到最大值，且光源有阴影，且阴影强度大于0，且光源有阴影投射体则返回
         if (ShadowedDirectionalLightCount < maxShadowedDirectionalLightCount &&
             light.shadows != LightShadows.None && light.shadowStrength > 0f &&
