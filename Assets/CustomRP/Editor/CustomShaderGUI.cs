@@ -10,7 +10,23 @@ public class CustomShaderGUI : ShaderGUI
     bool showPresets = true;
     bool HasProperty (string name) => FindProperty(name, properties, false) != null;
     bool HasPremultiplyAlpha => HasProperty("_PremulAlpha");
-    
+
+    enum ShadowMode
+    {
+        On, Clip, Dither, Off
+    }
+
+    ShadowMode Shadows
+    {
+        set
+        {
+            if (SetProperty("_Shadows", (float)value))
+            {
+                SetKeyword("_SHADOWS_CLIP", value == ShadowMode.Clip);
+                SetKeyword("_SHADOWS_DITHER", value == ShadowMode.Dither);
+            }
+        }
+    }
     
     public override void OnGUI(MaterialEditor materialEditor, MaterialProperty[] properties) {
         base.OnGUI(materialEditor, properties);
@@ -28,8 +44,15 @@ public class CustomShaderGUI : ShaderGUI
         }
     }
 
-    void SetProperty(string name, float value) {
-        FindProperty(name, properties).floatValue = value;
+    bool SetProperty(string name, float value)
+    {
+        MaterialProperty property = FindProperty(name, properties, false);
+        if (property != null)
+        {
+            property.floatValue = value;
+            return true;
+        }
+        return false;
     }
     
     void SetKeyword(string keyword, bool enabled) {
