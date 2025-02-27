@@ -50,6 +50,7 @@ Varings LitPassVertex(Attributes input)
     float4 baseST = UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _BaseMap_ST);
     output.baseUV = input.baseUV * baseST.xy + baseST.zw;
     output.normalWS = TransformObjectToWorldNormal(input.normalOS);
+    
     return output;
 }
 
