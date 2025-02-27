@@ -57,8 +57,9 @@ public partial class CameraRenderer : MonoBehaviour
         var filteringSettings = new FilteringSettings(RenderQueueRange.opaque);
         
         context.DrawRenderers(cullingResults, ref drawingSettings, ref filteringSettings);
-        
+        // DraSkyBox写入context
         context.DrawSkybox(camera);
+        
         sortingSettings.criteria = SortingCriteria.CommonTransparent;
         drawingSettings.sortingSettings = sortingSettings;
         filteringSettings.renderQueueRange = RenderQueueRange.transparent;
