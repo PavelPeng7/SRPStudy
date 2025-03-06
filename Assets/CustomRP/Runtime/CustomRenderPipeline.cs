@@ -6,6 +6,7 @@ using UnityEngine.Rendering;
 public class CustomRenderPipeline : RenderPipeline
 {
     private CameraRenderer renderer = new CameraRenderer();
+    // 通过字段跟踪合批策略配置
     bool useDynamicBatching, useGPUInstancing;
     ShadowSettings shadowSettings;
     
@@ -26,8 +27,8 @@ public class CustomRenderPipeline : RenderPipeline
         this.shadowSettings = shadowSettings;
         this.useDynamicBatching = useDynamicBatching;
         this.useGPUInstancing = useGPUInstancing;
+        GraphicsSettings.useScriptableRenderPipelineBatching = useSRPBatcher;
         
-        GraphicsSettings.useScriptableRenderPipelineBatching = false;
         GraphicsSettings.lightsUseLinearIntensity = true;
     }
     

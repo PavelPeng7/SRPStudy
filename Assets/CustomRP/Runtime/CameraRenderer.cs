@@ -33,7 +33,7 @@ public partial class CameraRenderer
 
     Lighting lighting = new Lighting();
     
-    
+    // 依赖RP提供合批策略配置
     public void Render(ScriptableRenderContext context, Camera camera, bool useDynamicBatching, bool useGPUInstancing, ShadowSettings shadowSettings) {
         this.context = context;
         this.camera = camera;
@@ -90,6 +90,7 @@ public partial class CameraRenderer
         buffer.Clear();
     }
     
+    // 输入合批策略配置
     void DrawVisibleGeometry(bool useDynamicBatching, bool useGPUInstancing) {
         // 决定使用正交或基于距离的排序
         // 正交排序有啥用？
@@ -100,9 +101,13 @@ public partial class CameraRenderer
         
         // 设置不透明绘制设置
         var drawingSettings = new DrawingSettings(unlitShaderTagId, sortingSettings) {
+            // 是否启用GPU Instance和Dynamic Batching
+            // 动态合批会影响单位法线和绘制顺序
+            // SRP Batch是优先级最高的合批
             enableDynamicBatching = useDynamicBatching,
             enableInstancing = useGPUInstancing
         };
+        // LitPass加入到需要被渲染的Passes中
         drawingSettings.SetShaderPassName(1, litShaderTagId);
         var filteringSettings = new FilteringSettings(RenderQueueRange.opaque);
         context.DrawRenderers(cullingResults, ref drawingSettings, ref filteringSettings);

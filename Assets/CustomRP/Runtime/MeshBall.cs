@@ -9,6 +9,7 @@ public class MeshBall : MonoBehaviour
         metallicId = Shader.PropertyToID("_Metallic"),
         smoothnessID = Shader.PropertyToID("_Smoothness");
         
+    // 我们一次可以提供1023个实例
     float[]
         metallic = new float[1023],
         smoothness = new float[1023];
