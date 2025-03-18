@@ -6,6 +6,7 @@ CBUFFER_START(UnityPerDraw)
     float4x4 unity_WorldToObject;
     float4 unity_LODFade;
     float3 _WorldSpaceCameraPos;
+    // real4其本身不是合法类型会被转换成float4或者half4
     real4 unity_WorldTransformParams;
 CBUFFER_END
 

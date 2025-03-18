@@ -3,8 +3,11 @@
 
 #include "../ShaderLibrary/Common.hlsl"
 #include "../ShaderLibrary/Surface.hlsl"
+#include "../ShaderLibrary/Shadows.hlsl"
 #include "../ShaderLibrary/Light.hlsl"
 #include "../ShaderLibrary/BRDF.hlsl"
+// 为什么不在surface中包含Lighting.hlsl？
+// 避免包含一个文件中包含另一个文件，这样会导致文件的依赖关系过于复杂
 #include "../ShaderLibrary/Lighting.hlsl"
 // OpenGL ES 2.0不支持Cbuffer所以我们得换种写法
 // cbuffer UnityPerMaterial
@@ -49,6 +52,7 @@ Varings LitPassVertex(Attributes input)
     float4 baseST = UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _BaseMap_ST);
     output.baseUV = input.baseUV * baseST.xy + baseST.zw;
     output.normalWS = TransformObjectToWorldNormal(input.normalOS);
+    
     return output;
 }
 
@@ -63,19 +67,25 @@ float4 LitPassFragment(Varings input):SV_TARGET
     #endif
     
     Surface surface;
+    surface.position = input.positionWS;
+    // 为什么要对法线进行归一化？
+    // 在顶点法线插值成片元法线的过程中，会导致法线长度变化
     surface.normal = normalize(input.normalWS);
     surface.viewDirection = normalize(_WorldSpaceCameraPos - input.positionWS);
     surface.color = base.rgb;
     surface.alpha = base.a;
     surface.metallic = UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _Metallic);
     surface.smoothness = UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _Smoothness);
+    surface.dither = InterleavedGradientNoise(input.positionCS.xy, 0);
+    surface.viewDirection = normalize(_WorldSpaceCameraPos - input.positionWS);
+    // 世界空间转换到观察空间取z值取反获得深度，左手坐标系z轴朝屏幕外
+    surface.depth = -TransformWorldToView(input.positionCS.z);
     
     #if defined(_PREMULTIPLY_ALPHA)
         BRDF brdf = GetBRDF(surface, true);
     #else
         BRDF brdf = GetBRDF(surface);
     #endif
-    
 
     float3 color = GetLighting(surface, brdf);
     return float4(color.rgb, surface.alpha);

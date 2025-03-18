@@ -17,13 +17,35 @@ Shader "Custom RP/Unlit"
             Blend [_SrcBlend] [_DstBlend]
             ZWrite [_ZWrite]
             HLSLPROGRAM
+            // pragma来自与希腊语含义是一个操作，在计算机语言上多用来表示发出一个特殊的编译指令
             #pragma shader_feature _CLIPPING
+            // GPU instances需要通过数组来提供数据，但是Shader不支持数组
+            // 所以需要使用multi_compile_instancing来支持
+            // 这会使Shader生成两个变体，一个支持GPU instances，一个不支持
             #pragma multi_compile_instancing
             #pragma  vertex UnlitPassVertex
             #pragma  fragment UnlitPassFragment
             #include "UnlitPass.hlsl"
             ENDHLSL
         }
+    Pass
+    {
+        Tags
+        {
+            "LightMode" = "ShadowCaster"
+        }
+        
+        ColorMask 0
+        
+        HLSLPROGRAM
+        #pragma target 3.5
+        #pragma shader_feature _ _SHADOWS_CLIP _SHADOWS_DITHER
+        #pragma multi_compile_instancing
+        #pragma vertex ShadowCasterPassVertex
+        #pragma fragment ShadowCasterPassFragment
+        #include "ShadowCasterPass.hlsl"
+        ENDHLSL
+    }
     }
     CustomEditor "CustomShaderGUI"
 }
