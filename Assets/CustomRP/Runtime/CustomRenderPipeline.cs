@@ -24,11 +24,12 @@ public class CustomRenderPipeline : RenderPipeline
     }
 
     public CustomRenderPipeline(bool useDynamicBatching, bool useGPUInstancing, bool useSRPBatcher, ShadowSettings shadowSettings) {
+        // 通过构造函数传递配置
         this.shadowSettings = shadowSettings;
         this.useDynamicBatching = useDynamicBatching;
         this.useGPUInstancing = useGPUInstancing;
         GraphicsSettings.useScriptableRenderPipelineBatching = useSRPBatcher;
-        
+        // unity默认的光照强度是gamma space的，我们需要将其转换为linear space
         GraphicsSettings.lightsUseLinearIntensity = true;
     }
     

@@ -47,6 +47,7 @@ Shader "Custom RP/Lit"
             "LightMode" = "ShadowCaster"
         }
         
+        // 仅渲染深度，不需要输出颜色
         ColorMask 0
         
         HLSLPROGRAM

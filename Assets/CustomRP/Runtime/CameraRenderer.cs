@@ -12,9 +12,10 @@ using UnityEngine.Rendering;
 
 public partial class CameraRenderer
 {
-    // 通过配置，加入命令context直接执行渲染命令，如：绘制Skybox
+    // 通过配置，加入命令到context直接执行渲染命令，如：绘制Skybox
     private ScriptableRenderContext context;
-    // 通过Command buffer间接发出渲染命令
+    
+    // 通过Command buffer收集GPU指令，发送给context执行
     // 给buffer命名方便在Profiler中查看
     const string bufferName = "Render Camera";
     CommandBuffer buffer = new CommandBuffer {
@@ -31,6 +32,7 @@ public partial class CameraRenderer
         unlitShaderTagId = new ShaderTagId("SRPDefaultUnlit"),
         litShaderTagId = new ShaderTagId("CustomLit");
 
+    // lighting实例，用于处理光照
     Lighting lighting = new Lighting();
     
     // 依赖RP提供合批策略配置
@@ -44,9 +46,10 @@ public partial class CameraRenderer
         if (!Cull(shadowSettings.maxDistance, camera)) {
             return;
         }
-        // 插入开始和结束的profiler samples，参数使用buffer的名字
+        // 插入开始和结束的profiler samples，参数使用当前相机的名字
         buffer.BeginSample(SampleName);
         ExecuteBuffer();
+        // 在绘制可见几何体之前，设置光照，阴影
         lighting.Setup(context, cullingResults, shadowSettings);
         buffer.EndSample(SampleName);
         Setup();
@@ -55,6 +58,7 @@ public partial class CameraRenderer
         DrawUnsupportedShaders();
         // 最后绘制Gizmos
         DrawGizmos();
+        // 渲染结束，清理光照数据，目前主要是清理阴影数据
         lighting.Cleanup();
         // 提交context中缓冲的渲染命令
         Submit();
@@ -126,8 +130,8 @@ public partial class CameraRenderer
     bool Cull(float maxShadowDistance, Camera camera) {
         // 获取相机的culling参数
         // out强制输出参数，不需要初始化
+        // 如果成功，设置阴影距离为相机的farClipPlane和maxShadowDistance的最小值
         if (camera.TryGetCullingParameters(out ScriptableCullingParameters p)) {
-            // 如果成功，设置阴影距离为相机的farClipPlane和maxShadowDistance的最小值
             p.shadowDistance = Mathf.Min(maxShadowDistance, camera.farClipPlane);
             // 获取CullingResults
             // ref引用参数，需要初始化。大结构体传参优化

@@ -21,13 +21,18 @@ BRDF GetBRDF(inout Surface surface, bool applyAlphaToDiffuse = false)
     BRDF brdf;
     float oneMinusReflectivity = OneMinusReflectivity(surface.metallic);
     brdf.diffuse = surface.color * oneMinusReflectivity;
+    // 如果applyAlphaToDiffuse为true，则将alpha值应用到diffuse中
+    // 在制作玻璃时，diffuse部分光线会透射出去
     if (applyAlphaToDiffuse)
     {
         brdf.diffuse *= surface.alpha;
     }
     
     brdf.specular = lerp(MIN_REFLECTIVITY, surface.color, surface.metallic);
+    // 1 - 感知粗糙度 = 感知光滑度
     float perceptualRoughness = PerceptualSmoothnessToPerceptualRoughness(surface.smoothness);
+
+    // 感知光滑度 * 感知光滑度 = 物理光滑度
     brdf.roughness = PerceptualRoughnessToRoughness(perceptualRoughness);
     return brdf;
 }

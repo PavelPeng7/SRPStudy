@@ -1,6 +1,7 @@
 #ifndef CUSTOM_LIGHTING_INCLUDED
 #define CUSTOM_LIGHTING_INCLUDED
 
+// 计算有多少入射光照
 float3 IncomingLight(Surface surface, Light light)
 {
     return saturate(dot(surface.normal, light.direction) * light.attenuation) * light.color;

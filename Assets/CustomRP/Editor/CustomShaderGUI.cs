@@ -4,8 +4,11 @@ using UnityEngine.Rendering;
 
 public class CustomShaderGUI : ShaderGUI
 {
+    // 1. 材质编辑器：是负责表现和编辑材质的底层编辑器
     private MaterialEditor editor;
+    // 2. 被编辑的材质引用
     Object[] materials;
+    // 3. 材质被编辑的属性数组
     MaterialProperty[] properties;
     bool showPresets = true;
     bool HasProperty (string name) => FindProperty(name, properties, false) != null;
@@ -27,7 +30,8 @@ public class CustomShaderGUI : ShaderGUI
             }
         }
     }
-
+    
+    
     void SetShadowCasterPass()
     {
         MaterialProperty shadows = FindProperty("_Shadows", properties, false);
@@ -36,6 +40,7 @@ public class CustomShaderGUI : ShaderGUI
             return;
         }
         bool enabled = shadows.floatValue < (float)ShadowMode.Off;
+        // 遍历所有材质，设置阴影投射Pass是否启用
         foreach (Material m in materials)
         {
             m.SetShaderPassEnabled("ShadowCaster", enabled);
@@ -50,6 +55,7 @@ public class CustomShaderGUI : ShaderGUI
         this.properties = properties;
         
         EditorGUILayout.Space();
+        // 通过EditorGUILayout.Foldout()方法创建一个折叠菜单
         showPresets = EditorGUILayout.Foldout(showPresets, "Presets", true);
         if (showPresets) {
             OpaquePreset();
@@ -62,7 +68,8 @@ public class CustomShaderGUI : ShaderGUI
             SetShadowCasterPass();
         }
     }
-
+    
+    // 该方法用于设置浮点数
     bool SetProperty(string name, float value)
     {
         MaterialProperty property = FindProperty(name, properties, false);
@@ -74,6 +81,7 @@ public class CustomShaderGUI : ShaderGUI
         return false;
     }
     
+    // 该方法用于设置关键字
     void SetKeyword(string keyword, bool enabled) {
         if (enabled) {
             foreach (Material m in materials) {
@@ -86,17 +94,9 @@ public class CustomShaderGUI : ShaderGUI
         }
     }
     
-    bool SetProperty(string name, string keyword, float value) {
-        MaterialProperty property = FindProperty(name, properties, false);
-        if (property != null) {
-            property.floatValue = value;
-            return true;
-        }
-        return false;
-    }
-    
+    // 该方法用于设置布尔值
     void SetProperty(string name, string keyword, bool value) {
-        if (SetProperty(name, keyword, value ? 1f : 0f)) {
+        if (SetProperty(name, value ? 1f : 0f)) {
             SetKeyword(keyword, value);
         }
     }
@@ -137,6 +137,7 @@ public class CustomShaderGUI : ShaderGUI
         }
     }
 
+    // 该方法返回是否使用该预设
     bool PresetButton(string name) {
         if (GUILayout.Button(name)) {
             editor.RegisterPropertyChangeUndo(name);
