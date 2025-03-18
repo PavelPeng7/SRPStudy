@@ -16,7 +16,8 @@ public class CustomRenderPipeline : RenderPipeline
     {
         
     }
-    // 2022版本中的新方法
+
+    // Unity2022后使用List
     protected override void Render(ScriptableRenderContext context, List<Camera> cameras) {
         for (int i = 0; i < cameras.Count; i++) {
             renderer.Render(context, cameras[i], useDynamicBatching, useGPUInstancing, shadowSettings);
