@@ -30,6 +30,10 @@ CBUFFER_END
 TEXTURE3D_FLOAT(unity_ProbeVolumeSH);
 SAMPLER(samplerunity_ProbeVolumeSH);
 
+bool4 unity_MetaFragmentControl;
+float unity_OneOverOutputBoost;
+float unity_MaxOutputValue;
+
 float4x4 unity_MatrixVP;
 float4x4 unity_MatrixV;
 float4x4 unity_MatrixInvV;

@@ -83,6 +83,7 @@ Shader "Custom RP/Lit"
         #include  "MetaPass.hlsl"
         ENDHLSL
     }
+    
    } 
     CustomEditor "CustomShaderGUI"
 }

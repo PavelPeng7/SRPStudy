@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.45046914, g: 0.5004692, b: 0.5751692, a: 1}
+  m_IndirectSpecularColor: {r: 0.43806487, g: 0.48604786, b: 0.5663272, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -394,6 +394,7 @@ GameObject:
   - component: {fileID: 364556260}
   - component: {fileID: 364556259}
   - component: {fileID: 364556258}
+  - component: {fileID: 364556261}
   m_Layer: 0
   m_Name: Cube (7)
   m_TagString: Untagged
@@ -409,13 +410,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 364556256}
   serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0.7611656, z: -0, w: 0.6485576}
-  m_LocalPosition: {x: 2.6, y: 1.6, z: -1.05}
+  m_LocalRotation: {x: -0, y: -0.8886247, z: -0, w: 0.45863512}
+  m_LocalPosition: {x: 1.63, y: 1.5999999, z: -1.52}
   m_LocalScale: {x: 3.9134278, y: 0.33052596, z: 0.33052596}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 122344897}
-  m_LocalEulerAnglesHint: {x: 0, y: -99.134, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: -125.402, z: 0}
 --- !u!65 &364556258
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -450,7 +451,7 @@ MeshRenderer:
   m_DynamicOccludee: 1
   m_StaticShadowCaster: 0
   m_MotionVectors: 1
-  m_LightProbeUsage: 1
+  m_LightProbeUsage: 2
   m_ReflectionProbeUsage: 1
   m_RayTracingMode: 2
   m_RayTraceProcedural: 0
@@ -487,6 +488,26 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 364556256}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!259 &364556261
+LightProbeProxyVolume:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 364556256}
+  m_Enabled: 1
+  m_BoundingBoxMode: 0
+  m_ResolutionX: 2
+  m_ResolutionY: 2
+  m_ResolutionZ: 8
+  m_ResolutionProbesPerUnit: 0.25
+  m_BoundingBoxSize: {x: Infinity, y: Infinity, z: Infinity}
+  m_BoundingBoxOrigin: {x: 0, y: 0, z: 0}
+  m_ResolutionMode: 1
+  m_ProbePositionMode: 0
+  m_RefreshMode: 0
+  m_QualityMode: 1
+  m_DataFormat: 1
 --- !u!1 &601435677
 GameObject:
   m_ObjectHideFlags: 0
@@ -1265,13 +1286,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 978456734}
   serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0.49952307, z: -0, w: 0.86630064}
-  m_LocalPosition: {x: 0.07, y: 1.78, z: -1}
+  m_LocalRotation: {x: 0, y: -0.5158606, z: 0, w: 0.8566726}
+  m_LocalPosition: {x: -0.44, y: 1.78, z: -1.2}
   m_LocalScale: {x: 3.9134278, y: 0.33052596, z: 0.33052596}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 122344897}
-  m_LocalEulerAnglesHint: {x: 0, y: -59.937, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: -62.11, z: 0}
 --- !u!65 &978456736
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -1354,11 +1375,11 @@ LightProbeProxyVolume:
   m_BoundingBoxMode: 0
   m_ResolutionX: 2
   m_ResolutionY: 2
-  m_ResolutionZ: 2
+  m_ResolutionZ: 8
   m_ResolutionProbesPerUnit: 0.01
   m_BoundingBoxSize: {x: Infinity, y: Infinity, z: Infinity}
   m_BoundingBoxOrigin: {x: 0, y: 0, z: 0}
-  m_ResolutionMode: 0
+  m_ResolutionMode: 1
   m_ProbePositionMode: 0
   m_RefreshMode: 0
   m_QualityMode: 1
@@ -1542,13 +1563,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1066564693}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.31564897, y: 0, z: 0, w: 0.9488761}
+  m_LocalRotation: {x: 0.6214212, y: 0, z: 0, w: 0.78347665}
   m_LocalPosition: {x: 0, y: 3, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 36.8, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 76.84, y: 0, z: 0}
 --- !u!1 &1115734814
 GameObject:
   m_ObjectHideFlags: 0
