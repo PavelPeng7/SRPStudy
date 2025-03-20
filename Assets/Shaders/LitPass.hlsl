@@ -6,6 +6,7 @@
 #include "../ShaderLibrary/Shadows.hlsl"
 #include "../ShaderLibrary/Light.hlsl"
 #include "../ShaderLibrary/BRDF.hlsl"
+#include "../ShaderLibrary/GI.hlsl"
 // 为什么不在surface中包含Lighting.hlsl？
 // 避免包含一个文件中包含另一个文件，这样会导致文件的依赖关系过于复杂
 #include "../ShaderLibrary/Lighting.hlsl"
@@ -87,7 +88,9 @@ float4 LitPassFragment(Varings input):SV_TARGET
         BRDF brdf = GetBRDF(surface);
     #endif
 
-    float3 color = GetLighting(surface, brdf);
+    GI gi = GetGI(0.0);
+
+    float3 color = GetLighting(surface, brdf, gi);
     return float4(color.rgb, surface.alpha);
 }
 #endif
