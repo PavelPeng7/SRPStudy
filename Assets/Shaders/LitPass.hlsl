@@ -15,6 +15,7 @@
 // {
 //     float4 _BaseColor;
 // };
+
 TEXTURE2D(_BaseMap);
 SAMPLER(sampler_BaseMap);
 
@@ -31,6 +32,7 @@ struct Attributes
     float3 positionOS : POSITION;
     float3 normalOS : NORMAL;
     float2 baseUV : TEXCOORD0;
+    GI_ATTRIBUTE_DATA
     UNITY_VERTEX_INPUT_INSTANCE_ID
 };
 
@@ -40,6 +42,7 @@ struct Varings
     float3 normalWS : VAR_NORMAL;
     float2 baseUV : VAR_BASE_UV;
     float3 positionWS : VAR_POSITION;
+    GI_VARYINGS_DATA
     UNITY_VERTEX_INPUT_INSTANCE_ID
 };
 
@@ -53,7 +56,7 @@ Varings LitPassVertex(Attributes input)
     float4 baseST = UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _BaseMap_ST);
     output.baseUV = input.baseUV * baseST.xy + baseST.zw;
     output.normalWS = TransformObjectToWorldNormal(input.normalOS);
-    
+    TRANSFER_GI_DATA(input, output);
     return output;
 }
 
@@ -87,10 +90,10 @@ float4 LitPassFragment(Varings input):SV_TARGET
     #else
         BRDF brdf = GetBRDF(surface);
     #endif
-
-    GI gi = GetGI(0.0);
-
+    // GI_FRAGMENT_DATA(input)返回的是lightMapUV
+    GI gi = GetGI(GI_FRAGMENT_DATA(input));
+    
     float3 color = GetLighting(surface, brdf, gi);
-    return float4(color.rgb, surface.alpha);
+    return float4(color, surface.alpha);
 }
 #endif

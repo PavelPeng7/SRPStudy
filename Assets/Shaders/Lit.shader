@@ -33,6 +33,8 @@ Shader "Custom RP/Lit"
             #pragma multi_compile _ _DIRECTIONAL_PCF3 _DIRECTIONAL_PCF5 _DIRECTIONAL_PCF7
             #pragma multi_compile _ _CASCADE_BLEND_SOFT _CASCADE_BLEND_DITHER
             #pragma shader_feature _RECEIVE_SHADOWS
+            // 使用变体渲染光照贴图物体
+            #pragma multi_compile _ LIGHTMAP_ON
             #pragma multi_compile_instancing
             #pragma  vertex LitPassVertex
             #pragma  fragment LitPassFragment

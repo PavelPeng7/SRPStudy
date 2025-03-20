@@ -109,7 +109,9 @@ public partial class CameraRenderer
             // 动态合批会影响单位法线和绘制顺序
             // SRP Batch是优先级最高的合批
             enableDynamicBatching = useDynamicBatching,
-            enableInstancing = useGPUInstancing
+            enableInstancing = useGPUInstancing,
+            // 设置绘制对象的光照贴图属性，以便unity发送light map uv到shader中
+            perObjectData = PerObjectData.Lightmaps
         };
         // LitPass加入到需要被渲染的Passes中
         drawingSettings.SetShaderPassName(1, litShaderTagId);

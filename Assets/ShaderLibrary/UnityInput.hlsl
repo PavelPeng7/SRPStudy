@@ -8,6 +8,9 @@ CBUFFER_START(UnityPerDraw)
     float3 _WorldSpaceCameraPos;
     // real4其本身不是合法类型会被转换成float4或者half4
     real4 unity_WorldTransformParams;
+
+    float4 unity_LightmapST;
+    float4 unity_DynamicLightmapST;
 CBUFFER_END
 
 float4x4 unity_MatrixVP;
