@@ -6,10 +6,6 @@
 #include "../ShaderLibrary/Light.hlsl"
 #include "../ShaderLibrary/BRDF.hlsl"
 
-// bool4 unity_MetaFragmentControl;
-// float unity_OneOverOutputBoost;
-// float unity_MaxOutputValue;
-
 struct Attributes {
     float3 positionOS : POSITION;
     float2 baseUV : TEXCOORD0;
@@ -24,7 +20,7 @@ struct Varyings {
 Varyings MetaPassVertex (Attributes input) {
     Varyings output;
     // 将lightmap uv的xy作为模型空间坐标
-    input.positionOS.xy = input.lightMapUV * unity_LightmapST.zy + unity_LightmapST.zw;
+    input.positionOS.xy = input.lightMapUV * unity_LightmapST.xy + unity_LightmapST.zw;
     // 将z坐标设置为0或者最小值,OpenGL平台将会不起作用如果不显式声明z坐标
     input.positionOS.z = input.positionOS.z > 0.0 ? FLT_MIN : 0.0;
     output.positionCS = TransformWorldToHClip(input.positionOS);
@@ -41,7 +37,7 @@ float4 MetaPassFragment (Varyings input) : SV_TARGET {
     surface.metallic = GetMetallic(input.baseUV);
     surface.smoothness = GetSmoothness(input.baseUV);
     BRDF brdf = GetBRDF(surface);
-    float4 meta = 1;
+    float4 meta = 0.0;
     if(unity_MetaFragmentControl.x)
     {
         meta = float4(brdf.diffuse, 1.0);

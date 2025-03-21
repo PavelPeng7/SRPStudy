@@ -78,8 +78,8 @@ Shader "Custom RP/Lit"
         
         HLSLPROGRAM
         #pragma target 3.5
-        #pragma  vertex  MetaPassVertex
-        #pragma fragment  MetaPassFragment
+        #pragma  vertex MetaPassVertex
+        #pragma fragment MetaPassFragment
         #include  "MetaPass.hlsl"
         ENDHLSL
     }
