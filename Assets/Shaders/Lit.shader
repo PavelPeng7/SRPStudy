@@ -10,14 +10,24 @@ Shader "Custom RP/Lit"
         [Toggle(_RECEIVE_SHADOWS)] _ReceiveShadows("Receive Shadows", Float) = 1
         _Metallic("Metallic", Range(0, 1)) = 0
         _Smoothness("Smoothness", Range(0, 1)) = 0.5
+        [NoScaleOffset] _EmissionMap("Emission", 2D) = "white" {}
+        [HDR] _EmissionColor("Emission Color", Color) = (0,0,0)
         [Enum(UnityEngine.Rendering.BlendMode)]_SrcBlend("Src Blend", Float) = 1
         [Enum(UnityEngine.Rendering.BlendMode)]_DstBlend("Dst Blend", Float) = 0
         [Enum(Off, 0, On, 1)] _ZWrite("ZWrite", Float) = 1
         [Toggle(_PREMULTIPLY_ALPHA)] _PremulAlpha("Premultiply Alpha", Float) = 0
+        
+        [HideInInspector] _MainTex("Texture for Lightmap", 2D) = "white" {}
+        [HideInInspector] _Color("Color for Lightmap", Color) = (1,1,1,1)
     }
     
     SubShader
     {
+        HLSLINCLUDE
+        #include "../ShaderLibrary/Common.hlsl"
+        #include "LitInput.hlsl"
+        ENDHLSL
+
         Pass
         {
             Tags
@@ -33,6 +43,8 @@ Shader "Custom RP/Lit"
             #pragma multi_compile _ _DIRECTIONAL_PCF3 _DIRECTIONAL_PCF5 _DIRECTIONAL_PCF7
             #pragma multi_compile _ _CASCADE_BLEND_SOFT _CASCADE_BLEND_DITHER
             #pragma shader_feature _RECEIVE_SHADOWS
+            // 使用变体渲染光照贴图物体
+            #pragma multi_compile _ LIGHTMAP_ON
             #pragma multi_compile_instancing
             #pragma  vertex LitPassVertex
             #pragma  fragment LitPassFragment
@@ -59,6 +71,24 @@ Shader "Custom RP/Lit"
         #include "ShadowCasterPass.hlsl"
         ENDHLSL
     }
+
+    Pass
+    {
+        Tags
+        {
+            "LightMode" = "Meta"
+        }
+        
+        Cull Off
+        
+        HLSLPROGRAM
+        #pragma target 3.5
+        #pragma  vertex MetaPassVertex
+        #pragma fragment MetaPassFragment
+        #include  "MetaPass.hlsl"
+        ENDHLSL
+    }
+    
    } 
     CustomEditor "CustomShaderGUI"
 }

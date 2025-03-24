@@ -2,37 +2,6 @@
 #ifndef CUSTOM_UNLIT_PASS_INCLUDED
 #define CUSTOM_UNLIT_PASS_INCLUDED
 
-#include "../ShaderLibrary/Common.hlsl"
-// OpenGL ES 2.0不支持Cbuffer所以我们得换种写法
-// cbuffer UnityPerMaterial
-// {
-//     float4 _BaseColor;
-// };
-TEXTURE2D(_BaseMap);
-SAMPLER(sampler_BaseMap);
-
-// 相比于uniform用常量缓冲区将变量隔离
-// 可以实现将材质属性缓存到GPU上不用每次drawcall时都传递
-// 每一次drawcall包含一个正确的内存地址的偏移量
-// SrpBatch条件：
-// 不支持OpenGL ES 2.0
-// 保证Shader中每个材质的内存布局一致，使用同一种变体
-
-// CBUFFER_START(UnityPerMaterial)
-    // float4x4 unity_ObjectToWorld;
-    // float4x4 unity_WorldToObject;
-    // float4 unity_LODFade;
-    // real4 unity_WorldTransformParams;
-// CBUFFER_END
-
-// GPUInstance对batch的大小有限制取决于目标平台提供给每个GpuInstance的数据大小
-UNITY_INSTANCING_BUFFER_START(UnityPerMaterial)
-    UNITY_DEFINE_INSTANCED_PROP(float4, _BaseMap_ST)
-    // 下划线开头是材质属性的命名规范
-    UNITY_DEFINE_INSTANCED_PROP(float4, _BaseColor)
-    UNITY_DEFINE_INSTANCED_PROP(float, _Cutoff)
-UNITY_INSTANCING_BUFFER_END(UnityPerMaterial)
-
 // 为了易读性将输入的数据定义为结构体
 struct Attributes
 {
@@ -63,8 +32,7 @@ Varings UnlitPassVertex(Attributes input)
     // 因为float4的w分量是1.0，区分向量和点，而我们不需要这个分量，可以减少运算
     float3 positionWS = TransformObjectToWorld(input.positionOS);
     output.positionCS = TransformWorldToHClip(positionWS);
-    float4 baseST = UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _BaseMap_ST);
-    output.baseUV = input.baseUV * baseST.xy + baseST.zw;
+    output.baseUV = TransformBaseUV(input.baseUV);
     return output;
 }
 
@@ -72,11 +40,9 @@ Varings UnlitPassVertex(Attributes input)
 float4 UnlitPassFragment(Varings input):SV_TARGET
 {
     UNITY_SETUP_INSTANCE_ID(input);
-    float4 baseMap = SAMPLE_TEXTURE2D(_BaseMap, sampler_BaseMap, input.baseUV);
-    float4 baseColor = UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _BaseColor);
-    float4 base = baseMap * baseColor;
+    float4 base = GetBase(input.baseUV);
     #if defined(_CLIPPING)
-        clip(base.a - UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _Cutoff));
+        clip(base.a - GetCutoff(input.baseUV));
     #endif
     
     clip(base.a - UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _Cutoff));
