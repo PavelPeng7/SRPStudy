@@ -47,6 +47,13 @@ public class Shadows
         "_DIRECTIONAL_PCF7",
     };
     
+    static string[] shadowMaskKeywords = {
+        "_SHADOW_MASK_DISTANCE"
+    };
+    
+    // 跟踪是否使用阴影遮罩
+    bool useShadowMask;
+    
     static Vector4[]
         cascadeCullingSpheres = new Vector4[maxCascades],
         cascadeData = new Vector4[maxCascades];
@@ -62,6 +69,7 @@ public class Shadows
 
         // 每次设置重置灯光计数
         ShadowedDirectionalLightCount = 0;
+        useShadowMask = false;
     }
     
     // 检测
@@ -71,8 +79,14 @@ public class Shadows
             light.shadows != LightShadows.None && light.shadowStrength > 0f &&
             // 检测可见光没有对任何物体投射阴影
             // 例如：光照只影响到了超出最大阴影距离的ShadowCaster，此时没有投射阴影
-            cullingResults.GetShadowCasterBounds(visibleLightIndex, out Bounds b)) 
-        {
+            cullingResults.GetShadowCasterBounds(visibleLightIndex, out Bounds b)) {
+                // 检测当前光源是否符合ShadowMask条件
+                LightBakingOutput lightBaking = light.bakingOutput;
+                if (lightBaking.lightmapBakeType == LightmapBakeType.Mixed &&
+                    lightBaking.mixedLightingMode == MixedLightingMode.Shadowmask) 
+                {
+                        useShadowMask = true;
+                }
                 shadowedDirectionalLights[ShadowedDirectionalLightCount] = new ShadowedDirectionalLight {
                     visibleLightIndex = visibleLightIndex, 
                     slopeScaleBias = light.shadowBias,
@@ -97,6 +111,11 @@ public class Shadows
             // 所以即使没有阴影光源，也需要创建一个空的RT
             buffer.GetTemporaryRT(dirShadowAtlasId, 1, 1, 32, FilterMode.Bilinear, RenderTextureFormat.Shadowmap);
         }
+        // 是否启用ShadowMask
+        buffer.BeginSample(bufferName);
+        SetKeywords(shadowMaskKeywords, useShadowMask ? 0 : -1);
+        buffer.EndSample(bufferName);
+        ExecuteBuffer();
     }
 
     void RenderDirectionalShadows() {

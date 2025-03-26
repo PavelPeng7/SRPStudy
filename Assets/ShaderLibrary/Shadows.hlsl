@@ -49,18 +49,28 @@ struct DirectionalShadowData
     float normalBias;
 };
 
+// 定义ShadowMask是否符合使用距离，以及其阴影值
+struct ShadowMask
+{
+    bool distance;
+    float4 shadows;
+};
+
 // 级联阴影id逐像素变化而不是逐光源
 struct ShadowData
 {
     int cascadeIndex;
     float cascadeBlend;
     float strength;
+    ShadowMask shadowMask;
 };
 
 ShadowData GetShadowData(Surface surfaceWS)
 {
     ShadowData data;
     // data.strength = surfaceWS.depth < _ShadowDistance ? 1.0 : 0.0;
+    data.shadowMask.distance = false;
+    data.shadowMask.shadows = 1.0;
     
     data.cascadeBlend = 1.0;
     // 阴影渐消
