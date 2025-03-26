@@ -9,6 +9,8 @@ CBUFFER_START(UnityPerDraw)
     // real4其本身不是合法类型会被转换成float4或者half4
     real4 unity_WorldTransformParams;
 
+    float4 unity_ProbesOcclusion;
+
     float4 unity_LightmapST;
     float4 unity_DynamicLightmapST;
 

@@ -15,6 +15,10 @@
 #define UNITY_PREV_MATRIX_I_M unity_prev_MatrixIM
 #define UNITY_MATRIX_P glstate_matrix_projection
 
+// 为了避免打断Instance加入关键字检测
+#if defined(_SHADOW_MASK_ALWAYS) || defined(_SHADOW_MASK_DISTANCE)
+    #define SHADOWS_SHADOWMASK
+#endif
 // UnityInstanceing.hlsl必须在定义了变换矩阵的宏之后，在SpaceTransforms.hlsl之前包含
 // UnityInstanceing.hlsl重定义了宏，以访问实例化数据数组
 #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/UnityInstancing.hlsl"
