@@ -50,6 +50,9 @@ Varings LitPassVertex(Attributes input)
 float4 LitPassFragment(Varings input):SV_TARGET
 {
     UNITY_SETUP_INSTANCE_ID(input);
+    #if defined(LOD_FADE_CROSSFADE)
+        return -unity_LODFade.x;
+    #endif
     float4 base = GetBase(input.baseUV);
     #if defined(_CLIPPING)
         clip(base.a - GetCutoff(input.baseUV));

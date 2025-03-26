@@ -44,6 +44,7 @@ Shader "Custom RP/Lit"
             #pragma multi_compile _ _CASCADE_BLEND_SOFT _CASCADE_BLEND_DITHER
             #pragma multi_compile _ _SHADOW_MASK_ALWAYS _SHADOW_MASK_DISTANCE
             #pragma shader_feature _RECEIVE_SHADOWS
+            #pragma  multi_compile _ LOD_FADE_CROSSFADE
             // 使用变体渲染光照贴图物体
             #pragma multi_compile _ LIGHTMAP_ON
             #pragma multi_compile_instancing
@@ -66,6 +67,7 @@ Shader "Custom RP/Lit"
         HLSLPROGRAM
         #pragma target 3.5
         #pragma shader_feature _ _SHADOWS_CLIP _SHADOWS_DITHER
+        #pragma  multi_compile _ LOD_FADE_CROSSFADE
         #pragma multi_compile_instancing
         #pragma vertex ShadowCasterPassVertex
         #pragma fragment ShadowCasterPassFragment
