@@ -48,6 +48,7 @@ public class Shadows
     };
     
     static string[] shadowMaskKeywords = {
+        "_SHADOW_MASK_ALWAYS",
         "_SHADOW_MASK_DISTANCE"
     };
     
@@ -76,10 +77,7 @@ public class Shadows
     public Vector3 ReserveDirectionalShadows(Light light, int visibleLightIndex) {
         // 如果阴影光源数量未达到最大值，且光源有阴影，且阴影强度大于0，且光源有阴影投射体则返回
         if (ShadowedDirectionalLightCount < maxShadowedDirectionalLightCount &&
-            light.shadows != LightShadows.None && light.shadowStrength > 0f &&
-            // 检测可见光没有对任何物体投射阴影
-            // 例如：光照只影响到了超出最大阴影距离的ShadowCaster，此时没有投射阴影
-            cullingResults.GetShadowCasterBounds(visibleLightIndex, out Bounds b)) {
+            light.shadows != LightShadows.None && light.shadowStrength > 0f) {
                 // 检测当前光源是否符合ShadowMask条件
                 LightBakingOutput lightBaking = light.bakingOutput;
                 if (lightBaking.lightmapBakeType == LightmapBakeType.Mixed &&
@@ -87,6 +85,12 @@ public class Shadows
                 {
                         useShadowMask = true;
                 }
+
+                if (!cullingResults.GetShadowCasterBounds(visibleLightIndex, out Bounds b)) {
+                    // 为什么取负值
+                    return new Vector3(-light.shadowStrength, 0f, 0f);
+                }
+                
                 shadowedDirectionalLights[ShadowedDirectionalLightCount] = new ShadowedDirectionalLight {
                     visibleLightIndex = visibleLightIndex, 
                     slopeScaleBias = light.shadowBias,
@@ -113,7 +117,8 @@ public class Shadows
         }
         // 是否启用ShadowMask
         buffer.BeginSample(bufferName);
-        SetKeywords(shadowMaskKeywords, useShadowMask ? 0 : -1);
+        SetKeywords(shadowMaskKeywords, useShadowMask ? 
+            QualitySettings.shadowmaskMode == ShadowmaskMode.Shadowmask ? 0 : 1 : -1);
         buffer.EndSample(bufferName);
         ExecuteBuffer();
     }

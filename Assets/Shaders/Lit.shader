@@ -42,7 +42,7 @@ Shader "Custom RP/Lit"
             #pragma shader_feature _PREMULTIPLY_ALPHA
             #pragma multi_compile _ _DIRECTIONAL_PCF3 _DIRECTIONAL_PCF5 _DIRECTIONAL_PCF7
             #pragma multi_compile _ _CASCADE_BLEND_SOFT _CASCADE_BLEND_DITHER
-            #pragma multi_compile _ _SHADOW_MASK_DISTANCE
+            #pragma multi_compile _ _SHADOW_MASK_ALWAYS _SHADOW_MASK_DISTANCE
             #pragma shader_feature _RECEIVE_SHADOWS
             // 使用变体渲染光照贴图物体
             #pragma multi_compile _ LIGHTMAP_ON

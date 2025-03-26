@@ -52,6 +52,7 @@ struct DirectionalShadowData
 // 定义ShadowMask是否符合使用距离，以及其阴影值
 struct ShadowMask
 {
+    bool always;
     bool distance;
     float4 shadows;
 };
@@ -68,7 +69,7 @@ struct ShadowData
 ShadowData GetShadowData(Surface surfaceWS)
 {
     ShadowData data;
-    // data.strength = surfaceWS.depth < _ShadowDistance ? 1.0 : 0.0;
+    data.shadowMask.always = false;
     data.shadowMask.distance = false;
     data.shadowMask.shadows = 1.0;
     
@@ -147,19 +148,8 @@ float FilterDirectionalShadow(float3 positionSTS)
     #endif
 }
 
-// 计算阴影衰减
-float GetDirectionalShadowAttenuation(DirectionalShadowData directional, ShadowData global, Surface surfaceWS)
-{ 
-    // 不接收阴影
-    #if !defined(_RECEIVE_SHADOWS)
-        return 1.0;
-    #endif
-    
-    // 分支条件统一，不会发生线程分散
-    if (directional.strength <= 0.0)
-    {
-        return 1.0;
-    }
+float GetCascadedShadow(DirectionalShadowData directional, ShadowData global, Surface surfaceWS)
+{
     // 通过对采样shadowmap的顶点沿法线偏移消除自阴影
     float3 normalBias = surfaceWS.normal * (directional.normalBias * _CascadeData[global.cascadeIndex].y);
     // world space to shadow tile space
@@ -177,8 +167,69 @@ float GetDirectionalShadowAttenuation(DirectionalShadowData directional, ShadowD
         // 混合级联阴影
         shadow = lerp(FilterDirectionalShadow(positionSTS), shadow, global.cascadeBlend);
     }
-    // 针对阴影强度进行插值，用处半透明阴影
-    return lerp(1.0, shadow, directional.strength);
+    return shadow;
 }
+
+float GetBakedShadow(ShadowMask mask)
+{
+    float shadow = 1.0;
+    if (mask.always || mask.distance)
+    {
+        shadow = mask.shadows.r;
+    }
+    return shadow;
+}
+
+float GetBakedShadow(ShadowMask mask, float strength)
+{
+    if (mask.always || mask.distance)
+    {
+        return lerp(1.0, GetBakedShadow(mask), strength);
+    }
+    return  1;
+}
+
+float MixBakedAndRealtimeShadows(ShadowData global, float shadow, float strength)
+{
+    float baked = GetBakedShadow(global.shadowMask);
+    if (global.shadowMask.always)
+    {
+
+        shadow = lerp(1.0, shadow, global.strength);
+        shadow = min(baked, shadow);
+        return lerp(1.0, shadow, strength);
+    }
+    if (global.shadowMask.distance)
+    {
+        shadow = lerp(baked, shadow, global.strength);
+        return lerp(1, shadow, global.strength);
+    }
+    return lerp(1.0, shadow, strength * global.strength);
+}
+
+// 计算阴影衰减
+float GetDirectionalShadowAttenuation(DirectionalShadowData directional, ShadowData global, Surface surfaceWS)
+{ 
+    // 不接收阴影
+    #if !defined(_RECEIVE_SHADOWS)
+        return 1.0;
+    #endif
+
+    float shadow = 0.0;
+    // 分支条件统一，不会发生线程分散
+    if (directional.strength * global.strength <= 0.0)
+    {
+        shadow = GetBakedShadow(global.shadowMask, abs(directional.strength));
+    }
+    else
+    {
+        shadow = GetCascadedShadow(directional, global, surfaceWS);
+        shadow = MixBakedAndRealtimeShadows(global, shadow, directional.strength);
+    }
+    return shadow;
+}
+
+
+
 
 #endif
