@@ -10,6 +10,7 @@ Shader "Custom RP/Lit"
         [Toggle(_RECEIVE_SHADOWS)] _ReceiveShadows("Receive Shadows", Float) = 1
         _Metallic("Metallic", Range(0, 1)) = 0
         _Smoothness("Smoothness", Range(0, 1)) = 0.5
+        _Fresnel("Fresnel", Range(0, 1)) = 1
         [NoScaleOffset] _EmissionMap("Emission", 2D) = "white" {}
         [HDR] _EmissionColor("Emission Color", Color) = (0,0,0)
         [Enum(UnityEngine.Rendering.BlendMode)]_SrcBlend("Src Blend", Float) = 1
@@ -44,6 +45,7 @@ Shader "Custom RP/Lit"
             #pragma multi_compile _ _CASCADE_BLEND_SOFT _CASCADE_BLEND_DITHER
             #pragma multi_compile _ _SHADOW_MASK_ALWAYS _SHADOW_MASK_DISTANCE
             #pragma shader_feature _RECEIVE_SHADOWS
+            #pragma  multi_compile _ LOD_FADE_CROSSFADE
             // 使用变体渲染光照贴图物体
             #pragma multi_compile _ LIGHTMAP_ON
             #pragma multi_compile_instancing
@@ -66,6 +68,7 @@ Shader "Custom RP/Lit"
         HLSLPROGRAM
         #pragma target 3.5
         #pragma shader_feature _ _SHADOWS_CLIP _SHADOWS_DITHER
+        #pragma  multi_compile _ LOD_FADE_CROSSFADE
         #pragma multi_compile_instancing
         #pragma vertex ShadowCasterPassVertex
         #pragma fragment ShadowCasterPassFragment

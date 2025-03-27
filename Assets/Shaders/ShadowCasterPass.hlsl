@@ -42,6 +42,7 @@ Varings ShadowCasterPassVertex(Attributes input)
 void ShadowCasterPassFragment(Varings input)
 {
     UNITY_SETUP_INSTANCE_ID(input);
+    ClipLOD(input.positionCS.xy, unity_LODFade.x);
     float4 base = GetBase(input.baseUV);
 
     // 半透明透明阴影的混合模式，裁剪，抖动

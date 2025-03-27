@@ -50,6 +50,7 @@ Varings LitPassVertex(Attributes input)
 float4 LitPassFragment(Varings input):SV_TARGET
 {
     UNITY_SETUP_INSTANCE_ID(input);
+    ClipLOD(input.positionCS.xy, unity_LODFade.x);
     float4 base = GetBase(input.baseUV);
     #if defined(_CLIPPING)
         clip(base.a - GetCutoff(input.baseUV));
@@ -65,6 +66,7 @@ float4 LitPassFragment(Varings input):SV_TARGET
     surface.alpha = base.a;
     surface.metallic = GetMetallic(input.baseUV);
     surface.smoothness = GetSmoothness(input.baseUV);
+    surface.fresnelStrength = GetFresnel(input.baseUV);
     surface.dither = InterleavedGradientNoise(input.positionCS.xy, 0);
     surface.viewDirection = normalize(_WorldSpaceCameraPos - input.positionWS);
     // 世界空间转换到观察空间取z值取反获得深度，左手坐标系z轴朝屏幕外
@@ -76,7 +78,7 @@ float4 LitPassFragment(Varings input):SV_TARGET
         BRDF brdf = GetBRDF(surface);
     #endif
     // GI_FRAGMENT_DATA(input)返回的是lightMapUV
-    GI gi = GetGI(GI_FRAGMENT_DATA(input), surface);
+    GI gi = GetGI(GI_FRAGMENT_DATA(input), surface, brdf);
     
     float3 color = GetLighting(surface, brdf, gi);
     color += GetEmission(input.baseUV);
