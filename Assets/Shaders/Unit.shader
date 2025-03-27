@@ -6,6 +6,7 @@ Shader "Custom RP/Unlit"
         _Cutoff("Alpha Cutoff", Range(0.0, 1.0)) = 0.5
         [Toggle(_CLIPPING)] _Clipping("Alpha Clipping", Float) = 0
         [HDR]_BaseColor("Color", color) = (1.0, 1.0, 1.0, 1.0)
+        _Fresnel("Fresnel", Range(0, 1)) = 1
         [Enum(UnityEngine.Rendering.BlendMode)]_SrcBlend("Src Blend", Float) = 1
         [Enum(UnityEngine.Rendering.BlendMode)]_DstBlend("Dst Blend", Float) = 0
         [Enum(Off, 0, On, 1)] _ZWrite("ZWrite", Float) = 1

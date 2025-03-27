@@ -111,7 +111,7 @@ public partial class CameraRenderer
             enableDynamicBatching = useDynamicBatching,
             enableInstancing = useGPUInstancing,
             // 设置绘制对象的光照贴图属性，以便unity发送light map uv到shader中
-            perObjectData = PerObjectData.Lightmaps | PerObjectData.ShadowMask |PerObjectData.LightProbe | PerObjectData.OcclusionProbe |PerObjectData.LightProbeProxyVolume | PerObjectData.OcclusionProbeProxyVolume
+            perObjectData = PerObjectData.ReflectionProbes | PerObjectData.Lightmaps | PerObjectData.ShadowMask |PerObjectData.LightProbe | PerObjectData.OcclusionProbe |PerObjectData.LightProbeProxyVolume | PerObjectData.OcclusionProbeProxyVolume
         };
         // LitPass加入到需要被渲染的Passes中
         drawingSettings.SetShaderPassName(1, litShaderTagId);

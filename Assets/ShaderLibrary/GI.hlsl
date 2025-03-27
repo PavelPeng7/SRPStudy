@@ -19,15 +19,21 @@
 #endif
 
 #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/EntityLighting.hlsl"
+#include "Packages/com.unity.render-pipelines.core/ShaderLibrary/ImageBasedLighting.hlsl"
+
 TEXTURE2D(unity_Lightmap);
 SAMPLER(samplerunity_Lightmap);
 
 TEXTURE2D(unity_ShadowMask);
 SAMPLER(samplerunity_ShadowMask);
 
+TEXTURECUBE(unity_SpecCube0);
+SAMPLER(samplerunity_SpecCube0);
+
 struct GI
 {
     float3 diffuse;
+    float3 specular;
     // ShadowMask也是烘焙GI的一部分
     ShadowMask shadowMask;
 };
@@ -99,10 +105,19 @@ float3 SampleLightProbe(Surface surfaceWS)
     #endif
 }
 
-GI GetGI(float2 lightMapUV, Surface surfaceWS)
+float3 SampleEnvironment(Surface surfaceWS, BRDF brdf)
+{
+    float3 uvw = reflect(-surfaceWS.viewDirection, surfaceWS.normal);
+    float mip = PerceptualRoughnessToMipmapLevel(brdf.perceptualRoughness);
+    float4 environment = SAMPLE_TEXTURECUBE_LOD(unity_SpecCube0, samplerunity_SpecCube0, uvw, mip);
+    return DecodeHDREnvironment(environment, unity_SpecCube0_HDR);
+}
+
+GI GetGI(float2 lightMapUV, Surface surfaceWS, BRDF brdf)
 {
     GI gi;
     gi.diffuse = SampleLightMap(lightMapUV) + SampleLightProbe(surfaceWS);
+    gi.specular = SampleEnvironment(surfaceWS, brdf);
     gi.shadowMask.always = false;
     gi.shadowMask.distance = false;
     gi.shadowMask.shadows = 1.0;
