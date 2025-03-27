@@ -30,6 +30,7 @@ struct Varings
     float3 normalWS : VAR_NORMAL;
     float2 baseUV : VAR_BASE_UV;
     float3 positionWS : VAR_POSITION;
+    float2 detailUV : VAR_DETAIL_UV;
     GI_VARYINGS_DATA
     UNITY_VERTEX_INPUT_INSTANCE_ID
 };
@@ -42,6 +43,7 @@ Varings LitPassVertex(Attributes input)
     output.positionWS = TransformObjectToWorld(input.positionOS);
     output.positionCS = TransformWorldToHClip(output.positionWS);
     output.baseUV = TransformBaseUV(input.baseUV);
+    output.detailUV = TransformDetailUV(input.baseUV);
     output.normalWS = TransformObjectToWorldNormal(input.normalOS);
     TRANSFER_GI_DATA(input, output);
     return output;
@@ -51,7 +53,7 @@ float4 LitPassFragment(Varings input):SV_TARGET
 {
     UNITY_SETUP_INSTANCE_ID(input);
     ClipLOD(input.positionCS.xy, unity_LODFade.x);
-    float4 base = GetBase(input.baseUV);
+    float4 base = GetBase(input.baseUV, input.detailUV);
     #if defined(_CLIPPING)
         clip(base.a - GetCutoff(input.baseUV));
     #endif
@@ -65,7 +67,8 @@ float4 LitPassFragment(Varings input):SV_TARGET
     surface.color = base.rgb;
     surface.alpha = base.a;
     surface.metallic = GetMetallic(input.baseUV);
-    surface.smoothness = GetSmoothness(input.baseUV);
+    surface.occlusion = GetOcclusion(input.baseUV);
+    surface.smoothness = GetSmoothness(input.baseUV, input.detailUV);
     surface.fresnelStrength = GetFresnel(input.baseUV);
     surface.dither = InterleavedGradientNoise(input.positionCS.xy, 0);
     surface.viewDirection = normalize(_WorldSpaceCameraPos - input.positionWS);
