@@ -32,7 +32,8 @@ Varings UnlitPassVertex(Attributes input)
     // 因为float4的w分量是1.0，区分向量和点，而我们不需要这个分量，可以减少运算
     float3 positionWS = TransformObjectToWorld(input.positionOS);
     output.positionCS = TransformWorldToHClip(positionWS);
-    output.baseUV = TransformBaseUV(input.baseUV);
+    InputConfig config = GetInputConfig(input.baseUV);
+    output.baseUV = TransformBaseUV(config);
     return output;
 }
 
@@ -40,7 +41,8 @@ Varings UnlitPassVertex(Attributes input)
 float4 UnlitPassFragment(Varings input):SV_TARGET
 {
     UNITY_SETUP_INSTANCE_ID(input);
-    float4 base = GetBase(input.baseUV);
+    InputConfig config = GetInputConfig(input.baseUV);
+    float4 base = GetBase(config);
     #if defined(_CLIPPING)
         clip(base.a - GetCutoff(input.baseUV));
     #endif
