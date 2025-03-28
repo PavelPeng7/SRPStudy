@@ -11,28 +11,41 @@ UNITY_INSTANCING_BUFFER_START(UnityPerMaterial)
     UNITY_DEFINE_INSTANCED_PROP(float, _Fresnel)
 UNITY_INSTANCING_BUFFER_END(UnityPerMaterial)
 
+struct InputConfig
+{
+    float2 baseUV;
+    float2 detailUV;
+};
 
-float2 TransformBaseUV (float2 baseUV) {
-    float4 baseST = UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _BaseMap_ST);
-    return baseUV * baseST.xy + baseST.zw;
+InputConfig GetInputConfig(float2 baseUV, float2 detailUV = 0.0)
+{
+    InputConfig c;
+    c.baseUV = baseUV;
+    c.detailUV = detailUV;
+    return c;
 }
 
-float4 GetBase (float2 baseUV) {
-    float4 map = SAMPLE_TEXTURE2D(_BaseMap, sampler_BaseMap, baseUV);
+float2 TransformBaseUV (InputConfig c) {
+    float4 baseST = UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _BaseMap_ST);
+    return c.baseUV * baseST.xy + baseST.zw;
+}
+
+float4 GetBase (InputConfig c) {
+    float4 map = SAMPLE_TEXTURE2D(_BaseMap, sampler_BaseMap, c.baseUV);
     float4 color = UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _BaseColor);
     return map * color;
 }
 
-float GetCutoff (float2 baseUV) {
+float GetCutoff (InputConfig c) {
     return UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _Cutoff);
 }
 
-float3 GetEmission(float2 baseUV)
+float3 GetEmission(InputConfig c)
 {
-    return GetBase(baseUV).rgb;
+    return GetBase(c).rgb;
 }
 
-float GetFresnel (float2 baseUV)
+float GetFresnel (InputConfig c)
 {
     return UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _Fresnel);
 }

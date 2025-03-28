@@ -32,7 +32,8 @@ Varings ShadowCasterPassVertex(Attributes input)
     #else
         output.positionCS.z = max(output.positionCS.z, output.positionCS.w * UNITY_NEAR_CLIP_VALUE);
     #endif
-    output.baseUV = TransformBaseUV(input.baseUV);
+    InputConfig config = GetInputConfig(input.baseUV);
+    output.baseUV = TransformBaseUV(config);
     return output;
 }
 
@@ -43,7 +44,8 @@ void ShadowCasterPassFragment(Varings input)
 {
     UNITY_SETUP_INSTANCE_ID(input);
     ClipLOD(input.positionCS.xy, unity_LODFade.x);
-    float4 base = GetBase(input.baseUV);
+    InputConfig config = GetInputConfig(input.baseUV);
+    float4 base = GetBase(config);
 
     // 半透明透明阴影的混合模式，裁剪，抖动
     #if defined(_SHADOWS_CLIP)
