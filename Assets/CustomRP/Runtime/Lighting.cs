@@ -9,7 +9,7 @@ public class Lighting
 {
     const string bufferName = "Lighting";
     
-    const int maxDirLightCount = 4;
+    const int maxDirLightCount = 4, maxOtherLightCount = 64;
 
     private static int
         dirLightCountId = Shader.PropertyToID("_DirectionalLightCount"),
@@ -23,6 +23,15 @@ public class Lighting
         dirLightColors = new Vector4[maxDirLightCount],
         dirLightDirections = new Vector4[maxDirLightCount],
         dirLightShadowData = new Vector4[maxDirLightCount];
+
+    private static int
+        otherLightCountId = Shader.PropertyToID("_OtherLightCount"),
+        otherLightColorsId = Shader.PropertyToID("_OtherLightColors"),
+        otherLightPositionsId = Shader.PropertyToID("_OtherLightPositions");
+    
+    private static Vector4[]
+        otherLightColors = new Vector4[maxOtherLightCount],
+        otherLightPositions = new Vector4[maxOtherLightCount];
 
     private CommandBuffer buffer = new CommandBuffer() {
         name = bufferName
@@ -50,23 +59,34 @@ public class Lighting
         // NativeArray是什么？
         // NativeArray是Unity的一种数据结构，它是一种高效的数组，可以在C#代码中直接访问Unity的内存，而不需要通过GC分配内存
         NativeArray<VisibleLight> visibleLights = cullingResults.visibleLights;
-        int dirLightCount = 0;
+        int dirLightCount = 0, otherLightCount = 0;
         for (int i = 0; i < visibleLights.Length; i++) {
             VisibleLight visibleLight = visibleLights[i];
-            // 只处理平行光
-            if (visibleLight.lightType == LightType.Directional) { 
-                // 因为visibleLight太大，所以需要传递引用
-                SetupDirectionalLight(dirLightCount++, ref visibleLight);
-                // 如果光源数量超过最大数量，就不再处理
-                if (dirLightCount >= maxDirLightCount) {
+            switch (visibleLight.lightType) {
+                case LightType.Directional:
+                    if (dirLightCount < maxDirLightCount) {
+                        SetupDirectionalLight(dirLightCount++, ref visibleLight);
+                    }
                     break;
-                }
+                case LightType.Point:
+                    if (otherLightCount < maxOtherLightCount) {
+                        SetupPointLight(otherLightCount++, ref visibleLight);
+                    }
+                    break;
             }
         }
         
-        buffer.SetGlobalInt(dirLightCountId, dirLightCount);
-        buffer.SetGlobalVectorArray(dirLightColorsId, dirLightColors);
-        buffer.SetGlobalVectorArray(dirLightDirectionsId, dirLightDirections);
+        if (dirLightCount > 0) {
+            buffer.SetGlobalInt(dirLightCountId, dirLightCount);
+            buffer.SetGlobalVectorArray(dirLightColorsId, dirLightColors);
+            buffer.SetGlobalVectorArray(dirLightDirectionsId, dirLightDirections);
+        }
+        buffer.SetGlobalInt(otherLightCountId, otherLightCount);
+        if (otherLightCount > 0) {
+            buffer.SetGlobalVectorArray(otherLightColorsId, otherLightColors);
+            buffer.SetGlobalVectorArray(otherLightPositionsId, otherLightPositions);
+        }
+
         // 设置阴影数据
         buffer.SetGlobalVectorArray(dirLightShadowDataId, dirLightShadowData);
     }
@@ -76,6 +96,13 @@ public class Lighting
         // 取z轴负方向作为光源方向
         dirLightDirections[index] = -visibleLight.localToWorldMatrix.GetColumn(2);
         dirLightShadowData[index] = shadows.ReserveDirectionalShadows(visibleLight.light, index);
+    }
+
+    void SetupPointLight(int index, ref VisibleLight visibleLight) {
+        otherLightColors[index] = visibleLight.finalColor;
+        Vector4 position = visibleLight.localToWorldMatrix.GetColumn(3);
+        position.w = 1f / Mathf.Max(visibleLight.range * visibleLight.range, 0.00001f);
+        otherLightPositions[index] = position;
     }
     
     public void Cleanup() {
