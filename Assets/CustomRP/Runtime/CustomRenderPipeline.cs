@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.Rendering;
 
 // asset中需要返回的RP instance，所以继承自RenderPipeline
-public class CustomRenderPipeline : RenderPipeline
+public partial class CustomRenderPipeline : RenderPipeline
 {
     private CameraRenderer renderer = new CameraRenderer();
     // 通过字段跟踪合批策略配置
@@ -32,6 +32,7 @@ public class CustomRenderPipeline : RenderPipeline
         GraphicsSettings.useScriptableRenderPipelineBatching = useSRPBatcher;
         // unity默认的光照强度是gamma space的，我们需要将其转换为linear space
         GraphicsSettings.lightsUseLinearIntensity = true;
+        InitializeForEditor();
     }
     
 }
