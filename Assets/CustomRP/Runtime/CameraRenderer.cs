@@ -36,7 +36,7 @@ public partial class CameraRenderer
     Lighting lighting = new Lighting();
     
     // 依赖RP提供合批策略配置
-    public void Render(ScriptableRenderContext context, Camera camera, bool useDynamicBatching, bool useGPUInstancing, ShadowSettings shadowSettings) {
+    public void Render(ScriptableRenderContext context, Camera camera, bool useDynamicBatching, bool useGPUInstancing, bool useLightsPerObject, ShadowSettings shadowSettings) {
         this.context = context;
         this.camera = camera;
         PrepareBuffer();
@@ -50,11 +50,11 @@ public partial class CameraRenderer
         buffer.BeginSample(SampleName);
         ExecuteBuffer();
         // 在绘制可见几何体之前，设置光照，阴影
-        lighting.Setup(context, cullingResults, shadowSettings);
+        lighting.Setup(context, cullingResults, shadowSettings, useLightsPerObject);
         buffer.EndSample(SampleName);
         Setup();
         // 绘制相机能看到的所有几何体
-        DrawVisibleGeometry(useDynamicBatching, useGPUInstancing);
+        DrawVisibleGeometry(useDynamicBatching, useGPUInstancing, useLightsPerObject);
         DrawUnsupportedShaders();
         // 最后绘制Gizmos
         DrawGizmos();
@@ -95,7 +95,9 @@ public partial class CameraRenderer
     }
     
     // 输入合批策略配置
-    void DrawVisibleGeometry(bool useDynamicBatching, bool useGPUInstancing) {
+    void DrawVisibleGeometry(bool useDynamicBatching, bool useGPUInstancing, bool useLightsPerObject) {
+        PerObjectData lightPerObjectFlags = useLightsPerObject ? PerObjectData.LightData | PerObjectData.LightIndices : PerObjectData.None;
+        
         // 决定使用正交或基于距离的排序
         // 正交排序有啥用？
         var sortingSettings = new SortingSettings(camera)
@@ -111,7 +113,7 @@ public partial class CameraRenderer
             enableDynamicBatching = useDynamicBatching,
             enableInstancing = useGPUInstancing,
             // 设置绘制对象的光照贴图属性，以便unity发送light map uv到shader中
-            perObjectData = PerObjectData.ReflectionProbes | PerObjectData.Lightmaps | PerObjectData.ShadowMask |PerObjectData.LightProbe | PerObjectData.OcclusionProbe |PerObjectData.LightProbeProxyVolume | PerObjectData.OcclusionProbeProxyVolume
+            perObjectData = PerObjectData.ReflectionProbes | PerObjectData.Lightmaps | PerObjectData.ShadowMask |PerObjectData.LightProbe | PerObjectData.OcclusionProbe |PerObjectData.LightProbeProxyVolume | PerObjectData.OcclusionProbeProxyVolume | lightPerObjectFlags
         };
         // LitPass加入到需要被渲染的Passes中
         drawingSettings.SetShaderPassName(1, litShaderTagId);

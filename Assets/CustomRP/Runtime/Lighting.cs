@@ -38,6 +38,8 @@ public class Lighting
         otherLightDirections = new Vector4[maxOtherLightCount],
         otherLightSpotAngles = new Vector4[maxOtherLightCount];
 
+    private static string lightPerObjectKeyword = "_LIGHTS_PER_OBJECT";
+
     private CommandBuffer buffer = new CommandBuffer() {
         name = bufferName
     };
@@ -46,12 +48,12 @@ public class Lighting
     
     Shadows shadows = new Shadows();
 
-    public void Setup(ScriptableRenderContext context, CullingResults cullingResults, ShadowSettings shadowSettings) {
+    public void Setup(ScriptableRenderContext context, CullingResults cullingResults, ShadowSettings shadowSettings, bool useLightsPerObject) {
         this.cullingResults = cullingResults;
         buffer.BeginSample(bufferName);
         // 在设置光照前设置阴影，在设置光照时将阴影数据传递给GPU
         shadows.Setup(context, cullingResults, shadowSettings);
-        SetupLights();
+        SetupLights(useLightsPerObject);
         // 在设置好光照后渲染阴影
         shadows.Render();
         buffer.EndSample(bufferName);
@@ -59,13 +61,17 @@ public class Lighting
         buffer.Clear();
     }
 
-    void SetupLights() {
+    void SetupLights(bool useLightsPerObject) {
         // 获取可见光源
         // NativeArray是什么？
         // NativeArray是Unity的一种数据结构，它是一种高效的数组，可以在C#代码中直接访问Unity的内存，而不需要通过GC分配内存
+        NativeArray<int> indexMap = useLightsPerObject ? cullingResults.GetLightIndexMap(Allocator.Temp) : default;
         NativeArray<VisibleLight> visibleLights = cullingResults.visibleLights;
+        
         int dirLightCount = 0, otherLightCount = 0;
-        for (int i = 0; i < visibleLights.Length; i++) {
+        int i;
+        for (i = 0; i < visibleLights.Length; i++) {
+            int newIndex = -1;
             VisibleLight visibleLight = visibleLights[i];
             switch (visibleLight.lightType) {
                 case LightType.Directional:
@@ -75,15 +81,33 @@ public class Lighting
                     break;
                 case LightType.Point:
                     if (otherLightCount < maxOtherLightCount) {
+                        newIndex = otherLightCount;
                         SetupPointLight(otherLightCount++, ref visibleLight);
                     }
                     break;
                 case LightType.Spot:
                     if (otherLightCount < maxOtherLightCount) {
+                        newIndex = otherLightCount;
                         SetupSpotLight(otherLightCount++, ref visibleLight);
                     }
                     break;
             }
+
+            if (useLightsPerObject) {
+                indexMap[i] = newIndex;
+            }
+        }
+
+        if (useLightsPerObject) {
+            for (; i < indexMap.Length; i++) {
+                indexMap[i] = -1;
+            }
+            cullingResults.SetLightIndexMap(indexMap);
+            indexMap.Dispose();
+            Shader.EnableKeyword(lightPerObjectKeyword);
+        }
+        else {
+            Shader.DisableKeyword(lightPerObjectKeyword);
         }
         
         buffer.SetGlobalInt(dirLightCountId, dirLightCount);
