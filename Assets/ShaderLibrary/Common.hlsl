@@ -40,6 +40,11 @@ float DistanceSquared(float3 pA, float3 pB)
     return dot(pA - pB, pA - pB);
 }
 
+float Square(float v)
+{
+    return v * v;
+}
+
 void ClipLOD(float2 positionCS, float fade)
 {
     #if defined(LOD_FADE_CROSSFADE)

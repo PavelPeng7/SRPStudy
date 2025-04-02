@@ -58,6 +58,7 @@ Shader "Custom RP/Lit"
             #pragma multi_compile _ _SHADOW_MASK_ALWAYS _SHADOW_MASK_DISTANCE
             #pragma shader_feature _RECEIVE_SHADOWS
             #pragma  multi_compile _ LOD_FADE_CROSSFADE
+            #pragma  multi_compile _ _LIGHTS_PER_OBJECT
             // 使用变体渲染光照贴图物体
             #pragma multi_compile _ LIGHTMAP_ON
             #pragma shader_feature _NORMAL_MAP

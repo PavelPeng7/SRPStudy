@@ -31,20 +31,13 @@ BRDF GetBRDF(inout Surface surface, bool applyAlphaToDiffuse = false)
     }
     
     brdf.specular = lerp(MIN_REFLECTIVITY, surface.color, surface.metallic);
+    
     // 1 - 感知粗糙度 = 感知光滑度
-    float perceptualRoughness = PerceptualSmoothnessToPerceptualRoughness(surface.smoothness);
-
     // 感知光滑度 * 感知光滑度 = 物理光滑度
-    brdf.roughness = PerceptualRoughnessToRoughness(perceptualRoughness);
     brdf.perceptualRoughness = PerceptualSmoothnessToPerceptualRoughness(surface.smoothness);
     brdf.roughness = PerceptualRoughnessToRoughness(brdf.perceptualRoughness);
     brdf.fresnel = saturate(surface.smoothness + 1.0 - oneMinusReflectivity);
     return brdf;
-}
-
-float Square(float v)
-{
-    return v * v;
 }
 
 float SpecularStrength (Surface surface, BRDF brdf, Light light) {
