@@ -27,11 +27,13 @@ public class Lighting
     private static int
         otherLightCountId = Shader.PropertyToID("_OtherLightCount"),
         otherLightColorsId = Shader.PropertyToID("_OtherLightColors"),
-        otherLightPositionsId = Shader.PropertyToID("_OtherLightPositions");
-    
+        otherLightPositionsId = Shader.PropertyToID("_OtherLightPositions"),
+        otherLightDirectionsId = Shader.PropertyToID("_OtherLightDirections");
+
     private static Vector4[]
         otherLightColors = new Vector4[maxOtherLightCount],
-        otherLightPositions = new Vector4[maxOtherLightCount];
+        otherLightPositions = new Vector4[maxOtherLightCount],
+        otherLightDirections = new Vector4[maxOtherLightCount];
 
     private CommandBuffer buffer = new CommandBuffer() {
         name = bufferName
@@ -73,19 +75,27 @@ public class Lighting
                         SetupPointLight(otherLightCount++, ref visibleLight);
                     }
                     break;
+                case LightType.Spot:
+                    if (otherLightCount < maxOtherLightCount) {
+                        SetupSpotLight(otherLightCount++, ref visibleLight);
+                    }
+                    break;
             }
         }
         
+        buffer.SetGlobalInt(dirLightCountId, dirLightCount);
         if (dirLightCount > 0) {
-            buffer.SetGlobalInt(dirLightCountId, dirLightCount);
             buffer.SetGlobalVectorArray(dirLightColorsId, dirLightColors);
             buffer.SetGlobalVectorArray(dirLightDirectionsId, dirLightDirections);
         }
+        
         buffer.SetGlobalInt(otherLightCountId, otherLightCount);
         if (otherLightCount > 0) {
             buffer.SetGlobalVectorArray(otherLightColorsId, otherLightColors);
             buffer.SetGlobalVectorArray(otherLightPositionsId, otherLightPositions);
+            buffer.SetGlobalVectorArray(otherLightDirectionsId, otherLightDirections);
         }
+        
 
         // 设置阴影数据
         buffer.SetGlobalVectorArray(dirLightShadowDataId, dirLightShadowData);
@@ -103,6 +113,15 @@ public class Lighting
         Vector4 position = visibleLight.localToWorldMatrix.GetColumn(3);
         position.w = 1f / Mathf.Max(visibleLight.range * visibleLight.range, 0.00001f);
         otherLightPositions[index] = position;
+    }
+    
+    
+    void SetupSpotLight(int index, ref VisibleLight visibleLight) {
+        otherLightColors[index] = visibleLight.finalColor;
+        Vector4 position = visibleLight.localToWorldMatrix.GetColumn(3);
+        position.w = 1f / Mathf.Max(visibleLight.range * visibleLight.range, 0.00001f);
+        otherLightPositions[index] = position;
+        otherLightDirections[index] = -visibleLight.localToWorldMatrix.GetColumn(2);
     }
     
     public void Cleanup() {
