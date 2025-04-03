@@ -50,6 +50,12 @@ struct DirectionalShadowData
     int shadowMaskChannel;
 };
 
+struct OtherShadowData
+{
+    float strength;
+    int shadowMaskChannel;
+};
+
 // 定义ShadowMask是否符合使用距离，以及其阴影值
 struct ShadowMask
 {
@@ -233,6 +239,29 @@ float GetDirectionalShadowAttenuation(DirectionalShadowData directional, ShadowD
     return shadow;
 }
 
+float GetOtherShadow(OtherShadowData other, ShadowData global, Surface surfaceWS)
+{
+    return 1.0;
+}
+
+float GetOtherShadowAttenuation(OtherShadowData other, ShadowData global, Surface surfaceWS)
+{ 
+    // 不接收阴影
+    #if !defined(_RECEIVE_SHADOWS)
+        return 1.0;
+    #endif
+
+    float shadow = 0.0;
+    if (other.strength > 0.0)
+    {
+        shadow = GetBakedShadow(global.shadowMask, other.shadowMaskChannel, other.strength);
+    }
+    else
+    {
+        shadow = 1.0;
+    }
+    return shadow;
+}
 
 
 
