@@ -108,7 +108,7 @@ ShadowData GetShadowData(Surface surfaceWS)
     }
     
     // 超出级联范围,强度为0
-    if (i == _CascadeCount)
+    if (i == _CascadeCount && _CascadeCount > 0)
     {
         data.strength = 0.0;
     }
@@ -252,13 +252,14 @@ float GetOtherShadowAttenuation(OtherShadowData other, ShadowData global, Surfac
     #endif
 
     float shadow = 0.0;
-    if (other.strength > 0.0)
+    if (other.strength * global.strength <= 0.0)
     {
-        shadow = GetBakedShadow(global.shadowMask, other.shadowMaskChannel, other.strength);
+        shadow = GetBakedShadow(global.shadowMask, other.shadowMaskChannel, abs(other.strength));
     }
     else
     {
-        shadow = 1.0;
+        shadow = GetOtherShadow(other, global, surfaceWS);
+        shadow = MixBakedAndRealtimeShadows(global, shadow, other.shadowMaskChannel, other.strength);
     }
     return shadow;
 }

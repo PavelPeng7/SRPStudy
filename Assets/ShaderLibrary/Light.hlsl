@@ -60,8 +60,6 @@ OtherShadowData GetOtherShadowData(int lightIndex)
     return data;
 }
 
-
-
 Light GetOtherLight(int
      index, Surface surfaceWS, ShadowData shadowData)
 {

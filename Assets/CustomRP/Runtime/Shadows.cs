@@ -24,7 +24,7 @@ public class Shadows
     }
 
     ShadowedDirectionalLight[] shadowedDirectionalLights = new ShadowedDirectionalLight[maxShadowedDirectionalLightCount];
-    int ShadowedDirectionalLightCount;
+    int ShadowedDirLightCount;
 
     private static int
         dirShadowAtlasId = Shader.PropertyToID("_DirectionalShadowAtlas"),
@@ -69,14 +69,14 @@ public class Shadows
         this.settings = settings;
 
         // 每次设置重置灯光计数
-        ShadowedDirectionalLightCount = 0;
+        ShadowedDirLightCount = 0;
         useShadowMask = false;
     }
     
     // 检测
     public Vector4 ReserveDirectionalShadows(Light light, int visibleLightIndex) {
         // 如果阴影光源数量未达到最大值，且光源有阴影，且阴影强度大于0，且光源有阴影投射体则返回
-        if (ShadowedDirectionalLightCount < maxShadowedDirectionalLightCount &&
+        if (ShadowedDirLightCount < maxShadowedDirectionalLightCount &&
             light.shadows != LightShadows.None && light.shadowStrength > 0f) {
                 float maskChannel = -1;
                 // 检测当前光源是否符合ShadowMask条件
@@ -93,7 +93,7 @@ public class Shadows
                     return new Vector4(-light.shadowStrength, 0f, 0f, maskChannel);
                 }
                 
-                shadowedDirectionalLights[ShadowedDirectionalLightCount] = new ShadowedDirectionalLight {
+                shadowedDirectionalLights[ShadowedDirLightCount] = new ShadowedDirectionalLight {
                     visibleLightIndex = visibleLightIndex, 
                     slopeScaleBias = light.shadowBias,
                     nearPlaneOffset = light.shadowNearPlane
@@ -101,7 +101,7 @@ public class Shadows
                 // 返回light的阴影强度，阴影索引，阴影偏差
                 return new Vector4(
                     light.shadowStrength,
-                    settings.directional.cascadeCount * ShadowedDirectionalLightCount++,
+                    settings.directional.cascadeCount * ShadowedDirLightCount++,
                     light.shadowNormalBias, maskChannel);
         }
         return new Vector4(0f, 0f, 0f, -1f);
@@ -109,7 +109,7 @@ public class Shadows
 
     public void Render() {
         // 如果有阴影光源，渲染阴影
-        if (ShadowedDirectionalLightCount > 0) {
+        if (ShadowedDirLightCount > 0) {
             RenderDirectionalShadows();
         }
         else {
@@ -121,6 +121,10 @@ public class Shadows
         buffer.BeginSample(bufferName);
         SetKeywords(shadowMaskKeywords, useShadowMask ? 
             QualitySettings.shadowmaskMode == ShadowmaskMode.Shadowmask ? 0 : 1 : -1);
+        
+        buffer.SetGlobalInt(cascadeCountId, ShadowedDirLightCount > 0 ? settings.directional.cascadeCount : 0);
+        float f = 1f - settings.directional.cascadeFade;
+        buffer.SetGlobalVector(shadowAtlasSizeId, new Vector4(1f / settings.maxDistance, 1f / settings.distanceFade, 1f / (1f - f * f)));
         buffer.EndSample(bufferName);
         ExecuteBuffer();
     }
@@ -145,19 +149,19 @@ public class Shadows
         ExecuteBuffer();
         
         
-        int tiles = ShadowedDirectionalLightCount * settings.directional.cascadeCount;
+        int tiles = ShadowedDirLightCount * settings.directional.cascadeCount;
         // 为什么限制到2的次幂？
         // 防止3x3分区无法整除，浪费纹理空间
         int split = tiles <= 1 ? 1 : tiles <= 4 ? 2 : 4;
         int tileSize = atlasSize / split;
 
         // 渲染每个光源的阴影
-        for (int i = 0; i < ShadowedDirectionalLightCount; i++) {
+        for (int i = 0; i < ShadowedDirLightCount; i++) {
             RenderDirectionalShadows(i, split, tileSize);
         }
         
         // 在渲染级联阴影后将级联数据传递给GPU
-        buffer.SetGlobalInt(cascadeCountId, settings.directional.cascadeCount);
+        buffer.SetGlobalInt(cascadeCountId, settings.directional.cascadeCount > 0 ? settings.directional.cascadeCount : 0);
         buffer.SetGlobalVectorArray(cascadeCullingSpheresId, cascadeCullingSpheres);
         buffer.SetGlobalVectorArray(cascadeDataId, cascadeData);
         // 传递阴影矩阵到Shader
@@ -167,12 +171,6 @@ public class Shadows
         
         // Distance Fade
         // buffer.SetGlobalVector(shadowDistanceFadeId, new Vector4(1f / settings.maxDistance, 1f / settings.distanceFade));
-        
-        // Cascade fade
-        float f = 1f - settings.directional.cascadeFade;
-        
-        // Distance fade 
-        buffer.SetGlobalVector(shadowDistanceFadeId, new Vector4(1f / settings.maxDistance, 1f / settings.distanceFade, 1f / (1f - f * f)));
         
         buffer.EndSample(bufferName);
         ExecuteBuffer();
