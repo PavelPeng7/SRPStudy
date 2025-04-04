@@ -15,10 +15,23 @@
      #define DIRECTIONAL_FILTER_SETUP SampleShadow_ComputeSamples_Tent_7x7
 #endif
 
+#if defined(_DIRECTIONAL_PCF3)
+     #define OTHER_FILTER_SAMPLES 4
+     #define OTHER_FILTER_SETUP SampleShadow_ComputeSamples_Tent_3x3
+#elif defined(_DIRECTIONAL_PCF5)
+     #define OTHER_FILTER_SAMPLES 9
+     #define OTHER_FILTER_SETUP SampleShadow_ComputeSamples_Tent_5x5
+#elif defined(_DIRECTIONAL_PCF7)
+     #define OTHER_FILTER_SAMPLES 16
+     #define OTHER_FILTER_SETUP SampleShadow_ComputeSamples_Tent_7x7
+#endif
+
 #define MAX_SHADOWED_DIRECTIONAL_LIGHT_COUNT 4
+#define MAX_SHADOWED_OTHER_LIGHT_COUNT 16
 #define MAX_CASCADE_COUNT 4
 
 TEXTURE2D_SHADOW(_DirectionalShadowAtlas);
+TEXTURE2D_SHADOW(_OtherShadowAtlas);
 // 使用对比采样器
 #define SHADOW_SAMPLER sampler_linear_clamp_compare
 // 定义采样器状态
@@ -33,6 +46,7 @@ CBUFFER_START(_CustomShadows)
     float4 _CascadeCullingSpheres[MAX_CASCADE_COUNT];
     float4 _CascadeData[MAX_CASCADE_COUNT];
     float4x4 _DirectionalShadowMatrices[MAX_SHADOWED_DIRECTIONAL_LIGHT_COUNT * MAX_CASCADE_COUNT];
+    float4x4 _OtherShadowMatrices[MAX_SHADOWED_OTHER_LIGHT_COUNT];
 CBUFFER_END
 
 
@@ -53,6 +67,7 @@ struct DirectionalShadowData
 struct OtherShadowData
 {
     float strength;
+    int tileIndex;
     int shadowMaskChannel;
 };
 
@@ -135,7 +150,6 @@ float SampleDirectionalShadowAtlas(float3 positionSTS) {
             _DirectionalShadowAtlas, SHADOW_SAMPLER, positionSTS
         );
 }
-
 float FilterDirectionalShadow(float3 positionSTS)
 {
     #if defined(DIRECTIONAL_FILTER_SETUP)
@@ -152,6 +166,30 @@ float FilterDirectionalShadow(float3 positionSTS)
         return shadow;
     #else
         return SampleDirectionalShadowAtlas(positionSTS);
+    #endif
+}
+
+float SampleOtherShadowAtlas(float3 positionSTS) {
+    return SAMPLE_TEXTURE2D_SHADOW(
+            _OtherShadowAtlas, SHADOW_SAMPLER, positionSTS
+        );
+}
+float FilterOtherShadow(float3 positionSTS)
+{
+    #if defined(OTHER_FILTER_SETUP)
+        float weights[DIRECTIONAL_FILTER_SAMPLES];
+        float2 positions[DIRECTIONAL_FILTER_SAMPLES];
+        // _ShadowAtlasSize: x:atlasSize y:1/atlasSize
+        float4 size = _ShadowAtlasSize.wwzz;
+        OTHER_FILTER_SETUP(size, positionSTS.xy, weights, positions);
+        float shadow = 0.0;
+        for (int i = 0; i < OTHER_FILTER_SAMPLES; i++)
+        {
+            shadow += weights[i] * SampleOtherShadowAtlas(float3(positions[i].xy, positionSTS.z));
+        }
+        return shadow;
+    #else
+        return SampleOtherShadowAtlas(positionSTS);
     #endif
 }
 
@@ -241,7 +279,12 @@ float GetDirectionalShadowAttenuation(DirectionalShadowData directional, ShadowD
 
 float GetOtherShadow(OtherShadowData other, ShadowData global, Surface surfaceWS)
 {
-    return 1.0;
+    float3 normalBias = surfaceWS.interpolatedNormal * 0.0;
+    float4 positionSTS = mul(
+        _OtherShadowMatrices[other.tileIndex],
+        float4(surfaceWS.position + normalBias, 1.0)
+        );
+    return FilterOtherShadow(positionSTS.xyz / positionSTS.w);
 }
 
 float GetOtherShadowAttenuation(OtherShadowData other, ShadowData global, Surface surfaceWS)

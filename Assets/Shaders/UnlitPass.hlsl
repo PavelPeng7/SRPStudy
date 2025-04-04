@@ -44,7 +44,7 @@ float4 UnlitPassFragment(Varings input):SV_TARGET
     InputConfig config = GetInputConfig(input.baseUV);
     float4 base = GetBase(config);
     #if defined(_CLIPPING)
-        clip(base.a - GetCutoff(input.baseUV));
+        clip(base.a - GetCutoff(config));
     #endif
     
     clip(base.a - UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _Cutoff));

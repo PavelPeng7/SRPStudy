@@ -97,7 +97,7 @@ LightmapSettings:
     m_ExportTrainingData: 0
     m_TrainingDataDestination: TrainingData
     m_LightProbeSampleCountMultiplier: 4
-  m_LightingDataAsset: {fileID: 112000000, guid: f32cc5b427f054b2fbe59868399ce950, type: 2}
+  m_LightingDataAsset: {fileID: 0}
   m_LightingSettings: {fileID: 4890085278179872738, guid: 1743d55bf7dfb419ba2ea44ed25b0efd, type: 2}
 --- !u!196 &4
 NavMeshSettings:
@@ -1023,7 +1023,7 @@ Light:
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_Intensity: 40
   m_Range: 10
-  m_SpotAngle: 57.881615
+  m_SpotAngle: 110.680176
   m_InnerSpotAngle: 18.123053
   m_CookieSize: 10
   m_Shadows:
@@ -1060,7 +1060,7 @@ Light:
     serializedVersion: 2
     m_Bits: 4294967295
   m_RenderingLayerMask: 1
-  m_Lightmapping: 2
+  m_Lightmapping: 4
   m_LightShadowCasterMode: 0
   m_AreaSize: {x: 1, y: 1}
   m_BounceIntensity: 1
@@ -1079,13 +1079,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 628471862}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.08220766, y: 0.82125545, z: -0.16809358, w: 0.5390047}
-  m_LocalPosition: {x: 1.01, y: -3.79, z: -3.28}
+  m_LocalRotation: {x: 0.3068807, y: 0.7661871, z: -0.31106773, w: 0.47118837}
+  m_LocalPosition: {x: 0.96, y: -3.111, z: -3.15}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 21.39, y: 112.908, z: -2.843}
+  m_LocalEulerAnglesHint: {x: 49.984, y: 124.31, z: 15.989}
 --- !u!1 &694947308
 GameObject:
   m_ObjectHideFlags: 0
@@ -2332,7 +2332,7 @@ Light:
     serializedVersion: 2
     m_Bits: 4294967295
   m_RenderingLayerMask: 1
-  m_Lightmapping: 1
+  m_Lightmapping: 4
   m_LightShadowCasterMode: 0
   m_AreaSize: {x: 1, y: 1}
   m_BounceIntensity: 1
@@ -2899,7 +2899,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!108 &1553224475
 Light:
   m_ObjectHideFlags: 0

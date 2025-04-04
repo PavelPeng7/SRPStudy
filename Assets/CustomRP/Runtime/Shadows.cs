@@ -49,7 +49,8 @@ public class Shadows
         cascadeDataId = Shader.PropertyToID("_CascadeData"),
         // 用于PCF采样shadowmap
         shadowAtlasSizeId = Shader.PropertyToID("_ShadowAtlasSize"),
-        shadowDistanceFadeId = Shader.PropertyToID("_ShadowDistanceFade");
+        shadowDistanceFadeId = Shader.PropertyToID("_ShadowDistanceFade"),
+        shadowPancakingId = Shader.PropertyToID("_ShadowPancaking");
 
     static string[] cascadeBlendKeywords =
     {
@@ -228,6 +229,7 @@ public class Shadows
         buffer.SetRenderTarget(dirShadowAtlasId, RenderBufferLoadAction.DontCare, RenderBufferStoreAction.Store);
         // 清除深度缓冲区，但不清除颜色缓冲区
         buffer.ClearRenderTarget(true, false, Color.clear);
+        buffer.SetGlobalFloat(shadowPancakingId, 1f);
         SetKeywords(directionalFilterKeywords, (int)settings.directional.filter - 1);
 
         // buffer.SetGlobalVector(shadowAtlasSizeId, new Vector4(atlasSize, 1f / atlasSize));
@@ -296,6 +298,7 @@ public class Shadows
             RenderTextureFormat.Shadowmap);
         buffer.SetRenderTarget(otherShadowAtlasId, RenderBufferLoadAction.DontCare, RenderBufferStoreAction.Store);
         buffer.ClearRenderTarget(true, false, Color.clear);
+        buffer.SetGlobalFloat(shadowPancakingId, 0f);
         buffer.BeginSample(bufferName);
         ExecuteBuffer();
 
