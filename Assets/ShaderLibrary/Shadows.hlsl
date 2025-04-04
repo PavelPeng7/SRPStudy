@@ -15,13 +15,13 @@
      #define DIRECTIONAL_FILTER_SETUP SampleShadow_ComputeSamples_Tent_7x7
 #endif
 
-#if defined(_DIRECTIONAL_PCF3)
+#if defined(_OTHER_PCF3)
      #define OTHER_FILTER_SAMPLES 4
      #define OTHER_FILTER_SETUP SampleShadow_ComputeSamples_Tent_3x3
-#elif defined(_DIRECTIONAL_PCF5)
+#elif defined(_OTHER_PCF5)
      #define OTHER_FILTER_SAMPLES 9
      #define OTHER_FILTER_SETUP SampleShadow_ComputeSamples_Tent_5x5
-#elif defined(_DIRECTIONAL_PCF7)
+#elif defined(_OTHER_PCF7)
      #define OTHER_FILTER_SAMPLES 16
      #define OTHER_FILTER_SETUP SampleShadow_ComputeSamples_Tent_7x7
 #endif
@@ -177,8 +177,8 @@ float SampleOtherShadowAtlas(float3 positionSTS) {
 float FilterOtherShadow(float3 positionSTS)
 {
     #if defined(OTHER_FILTER_SETUP)
-        float weights[DIRECTIONAL_FILTER_SAMPLES];
-        float2 positions[DIRECTIONAL_FILTER_SAMPLES];
+        float weights[OTHER_FILTER_SAMPLES];
+        float2 positions[OTHER_FILTER_SAMPLES];
         // _ShadowAtlasSize: x:atlasSize y:1/atlasSize
         float4 size = _ShadowAtlasSize.wwzz;
         OTHER_FILTER_SETUP(size, positionSTS.xy, weights, positions);
@@ -242,14 +242,15 @@ float MixBakedAndRealtimeShadows(ShadowData global, float shadow, int shadowMask
     float baked = GetBakedShadow(global.shadowMask, shadowMaskChannel);
     if (global.shadowMask.always)
     {
-
         shadow = lerp(1.0, shadow, global.strength);
         shadow = min(baked, shadow);
         return lerp(1.0, shadow, strength);
     }
     if (global.shadowMask.distance)
     {
+        return shadow;
         shadow = lerp(baked, shadow, global.strength);
+        
         return lerp(1, shadow, global.strength);
     }
     return lerp(1.0, shadow, strength * global.strength);
@@ -304,7 +305,7 @@ float GetOtherShadowAttenuation(OtherShadowData other, ShadowData global, Surfac
         shadow = GetOtherShadow(other, global, surfaceWS);
         shadow = MixBakedAndRealtimeShadows(global, shadow, other.shadowMaskChannel, other.strength);
     }
-    return shadow;
+    return global.strength;
 }
 
 

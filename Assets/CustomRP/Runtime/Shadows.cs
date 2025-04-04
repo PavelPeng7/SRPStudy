@@ -43,7 +43,7 @@ public class Shadows
         dirShadowAtlasId = Shader.PropertyToID("_DirectionalShadowAtlas"),
         dirShadowMatricesId = Shader.PropertyToID("_DirectionalShadowMatrices"),
         otherShadowAtlasId = Shader.PropertyToID("_OtherShadowAtlas"),
-        otherShadowMatricesID = Shader.PropertyToID("_OtherShadowMatrices"),
+        otherShadowMatricesId = Shader.PropertyToID("_OtherShadowMatrices"),
         cascadeCountId = Shader.PropertyToID("_CascadeCount"),
         cascadeCullingSpheresId = Shader.PropertyToID("_CascadeCullingSpheres"),
         cascadeDataId = Shader.PropertyToID("_CascadeData"),
@@ -170,7 +170,7 @@ public class Shadows
             slopeScaleBias = light.shadowBias,
             normalBias = light.shadowNormalBias
         };
-
+        Debug.Log(light.shadowStrength);
         return new Vector4(
             light.shadowStrength, shadowedOtherLightCount++, 0f,
             maskChannel);
@@ -294,6 +294,7 @@ public class Shadows
         int atlasSize = (int)settings.other.atlasSize;
         atlasSizes.z = atlasSize;
         atlasSizes.w = 1f / atlasSize;
+
         buffer.GetTemporaryRT(otherShadowAtlasId, atlasSize, atlasSize, 32, FilterMode.Bilinear,
             RenderTextureFormat.Shadowmap);
         buffer.SetRenderTarget(otherShadowAtlasId, RenderBufferLoadAction.DontCare, RenderBufferStoreAction.Store);
@@ -313,7 +314,7 @@ public class Shadows
         }
 
         // 传递阴影矩阵到Shader
-        buffer.SetGlobalMatrixArray(dirShadowMatricesId, dirShadowMatrices);
+        buffer.SetGlobalMatrixArray(otherShadowMatricesId, otherShadowMatrices);
         SetKeywords(otherFilterKeywords, (int)settings.other.filter - 1);
         buffer.EndSample(bufferName);
         ExecuteBuffer();
