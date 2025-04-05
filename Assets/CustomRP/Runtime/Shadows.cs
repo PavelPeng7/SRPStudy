@@ -44,6 +44,7 @@ public class Shadows
         dirShadowMatricesId = Shader.PropertyToID("_DirectionalShadowMatrices"),
         otherShadowAtlasId = Shader.PropertyToID("_OtherShadowAtlas"),
         otherShadowMatricesId = Shader.PropertyToID("_OtherShadowMatrices"),
+        otherShadowTilesId = Shader.PropertyToID("_OtherShadowTiles"),
         cascadeCountId = Shader.PropertyToID("_CascadeCount"),
         cascadeCullingSpheresId = Shader.PropertyToID("_CascadeCullingSpheres"),
         cascadeDataId = Shader.PropertyToID("_CascadeData"),
@@ -85,7 +86,8 @@ public class Shadows
 
     static Vector4[]
         cascadeCullingSpheres = new Vector4[maxCascades],
-        cascadeData = new Vector4[maxCascades];
+        cascadeData = new Vector4[maxCascades],
+        otherShadowTiles = new Vector4[maxShadowedOtherLightCount];
 
     // 定义转换到Atlas空间的阴影矩阵数组，数量是最大阴影光源数量 * 最大阴影级联数量
     private static Matrix4x4[]
@@ -278,9 +280,16 @@ public class Shadows
             out Matrix4x4 projectionMatrix, out ShadowSplitData splitData
         );
         shadowSettings.splitData = splitData;
+        float texelSize = 2f / (tileSize * projectionMatrix.m00);
+        float filterSize = texelSize * ((float)settings.other.filter + 1f);
+        float bias = light.normalBias * filterSize * 1.4142136f;
+
+        Vector2 offset = SetTileViewport(index, split, tileSize);
+        float tileScale = 1f / split;
+        SetOtherTileData(index, offset, tileScale, bias);
         otherShadowMatrices[index] = ConvertToAtlasMatrix(
             projectionMatrix * viewMatrix,
-            SetTileViewport(index, split, tileSize), split
+            offset, tileScale
         );
         buffer.SetViewProjectionMatrices(viewMatrix, projectionMatrix);
         buffer.SetGlobalDepthBias(0f, light.slopeScaleBias);
@@ -315,6 +324,7 @@ public class Shadows
 
         // 传递阴影矩阵到Shader
         buffer.SetGlobalMatrixArray(otherShadowMatricesId, otherShadowMatrices);
+        buffer.SetGlobalVectorArray(otherShadowTilesId, otherShadowTiles);
         SetKeywords(otherFilterKeywords, (int)settings.other.filter - 1);
         buffer.EndSample(bufferName);
         ExecuteBuffer();
@@ -335,6 +345,17 @@ public class Shadows
         }
     }
 
+    void SetOtherTileData(int index, Vector2 offset, float scale, float bias)
+    {
+        float border = atlasSizes.w * 0.5f;
+        Vector4 data;
+        data.x = offset.x * scale + border;
+        data.y = offset.y * scale + border;
+        data.z = scale - border - border;
+        data.w = bias;
+        otherShadowTiles[index] = data;
+    }
+
     void RenderDirectionalShadows(int index, int split, int tileSize)
     {
         ShadowedDirectionalLight light = shadowedDirectionalLights[index];
@@ -345,7 +366,7 @@ public class Shadows
         Vector3 ratios = settings.directional.CascadeRatios;
 
         float cullingFactor = Mathf.Max(0f, 0.8f - settings.directional.cascadeFade);
-
+        float tileScale = 1f / split;
         // 渲染每个级联
         for (int i = 0; i < cascadeCount; i++)
         {
@@ -368,7 +389,7 @@ public class Shadows
             int tileIndex = tileOffset + i;
             // 从世界空间转换到光源空间通过乘以光源的阴影投影矩阵和观察矩阵
             dirShadowMatrices[tileIndex] = ConvertToAtlasMatrix(projectionMatrix * viewMatrix,
-                SetTileViewport(tileIndex, split, tileSize), split);
+                SetTileViewport(tileIndex, split, tileSize), tileScale);
             // 应用光源的投影矩阵
             buffer.SetViewProjectionMatrices(viewMatrix, projectionMatrix);
             // 设置全局DepthBias
@@ -393,7 +414,7 @@ public class Shadows
     }
 
     // 将世界坐标转换到 Shadow Atlas 贴图的 Tile 空间的矩阵
-    Matrix4x4 ConvertToAtlasMatrix(Matrix4x4 m, Vector2 offset, int split)
+    Matrix4x4 ConvertToAtlasMatrix(Matrix4x4 m, Vector2 offset, float scale)
     {
         // 在某些图形 API (Vulkan, DirectX) 中，Z 缓冲是反向的，即 1.0 代表最接近相机，0.0 代表最远。
         // 与OpenGL相比是为了利用浮点数精度的特性，在远处用更高精度的浮点数，避免z-fight。
@@ -405,9 +426,6 @@ public class Shadows
             m.m22 = -m.m22;
             m.m23 = -m.m23;
         }
-
-        // 计算tile的大小
-        float scale = 1f / split;
 
         // 将Clip Space(-1, 1)转换到Shadow Atlas UV(0,1), 并加上偏移量
         // [ m00  m01  m02  m03 ]   // 第一列: X 轴变换

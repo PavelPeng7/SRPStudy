@@ -43,9 +43,7 @@ float3 GetLighting(Surface surfaceWS, BRDF brdf, GI gi) {
             Light light = GetOtherLight(j, surfaceWS, shadowData);
             color += GetLighting(surfaceWS, brdf, light);
         }
-    
     #endif
-    return GetOtherLight(0, surfaceWS, shadowData).attenuation;
 
     return color;
 }

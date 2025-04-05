@@ -97,7 +97,7 @@ LightmapSettings:
     m_ExportTrainingData: 0
     m_TrainingDataDestination: TrainingData
     m_LightProbeSampleCountMultiplier: 4
-  m_LightingDataAsset: {fileID: 0}
+  m_LightingDataAsset: {fileID: 112000000, guid: f32cc5b427f054b2fbe59868399ce950, type: 2}
   m_LightingSettings: {fileID: 4890085278179872738, guid: 1743d55bf7dfb419ba2ea44ed25b0efd, type: 2}
 --- !u!196 &4
 NavMeshSettings:
@@ -1060,13 +1060,13 @@ Light:
     serializedVersion: 2
     m_Bits: 4294967295
   m_RenderingLayerMask: 1
-  m_Lightmapping: 4
+  m_Lightmapping: 1
   m_LightShadowCasterMode: 0
   m_AreaSize: {x: 1, y: 1}
   m_BounceIntensity: 1
   m_ColorTemperature: 6570
   m_UseColorTemperature: 0
-  m_BoundingSphereOverride: {x: 0, y: 0, z: 0, w: 0}
+  m_BoundingSphereOverride: {x: 1.02e-43, y: 3.55e-43, z: 4.023e-42, w: 0}
   m_UseBoundingSphereOverride: 0
   m_UseViewFrustumForShadowCasterCull: 1
   m_ShadowRadius: 0
@@ -1080,7 +1080,7 @@ Transform:
   m_GameObject: {fileID: 628471862}
   serializedVersion: 2
   m_LocalRotation: {x: 0.3068807, y: 0.7661871, z: -0.31106773, w: 0.47118837}
-  m_LocalPosition: {x: 0.96, y: -3.111, z: -3.15}
+  m_LocalPosition: {x: 0.148, y: -3.156, z: -3.15}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -2899,7 +2899,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!108 &1553224475
 Light:
   m_ObjectHideFlags: 0
@@ -2957,7 +2957,7 @@ Light:
   m_BounceIntensity: 1
   m_ColorTemperature: 6570
   m_UseColorTemperature: 0
-  m_BoundingSphereOverride: {x: 1.02e-43, y: 8e-45, z: 4.232e-42, w: -1.859502e-20}
+  m_BoundingSphereOverride: {x: 1.02e-43, y: 6e-45, z: 4.097e-42, w: 0}
   m_UseBoundingSphereOverride: 0
   m_UseViewFrustumForShadowCasterCull: 1
   m_ShadowRadius: 0
@@ -3547,7 +3547,7 @@ GameObject:
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 1
+  m_StaticEditorFlags: 0
   m_IsActive: 1
 --- !u!135 &1929316371
 SphereCollider:
@@ -3629,7 +3629,7 @@ Transform:
   m_GameObject: {fileID: 1929316370}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -2.66, y: 1.32, z: 0.1}
+  m_LocalPosition: {x: -2.681, y: 1.354, z: -0.321}
   m_LocalScale: {x: 0.6031617, y: 0.6031617, z: 0.6031617}
   m_ConstrainProportionsScale: 0
   m_Children: []
