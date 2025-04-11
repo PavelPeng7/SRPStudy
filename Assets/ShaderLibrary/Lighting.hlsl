@@ -26,9 +26,10 @@ float3 GetLighting(Surface surfaceWS, BRDF brdf, GI gi) {
 
     for (int i = 0; i < GetDirectionalLightCount(); i++)
     {
-        // Light light = GetDirectionalLight(i, surfaceWS, shadowData);
-        color += GetLighting(surfaceWS, brdf, GetDirectionalLight(i, surfaceWS, shadowData));
+        Light light = GetDirectionalLight(i, surfaceWS, shadowData);
+        color += GetLighting(surfaceWS, brdf, light);
     }
+
     #if defined(_LIGHTS_PER_OBJECT)
         for (int j = 0; j < min(unity_LightData.y, 8); j++)
         {
@@ -43,7 +44,6 @@ float3 GetLighting(Surface surfaceWS, BRDF brdf, GI gi) {
             color += GetLighting(surfaceWS, brdf, light);
         }
     #endif
-
 
     return color;
 }
