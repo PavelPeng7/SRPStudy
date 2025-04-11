@@ -48,7 +48,6 @@ CBUFFER_START(_CustomShadows)
     float4 _OtherShadowTiles[MAX_SHADOWED_OTHER_LIGHT_COUNT];
     float4 _ShadowAtlasSize;
     float4 _ShadowDistanceFade;
-
 CBUFFER_END
 
 
@@ -104,6 +103,7 @@ ShadowData GetShadowData(Surface surfaceWS)
     data.cascadeBlend = 1.0;
     // 阴影渐消
     data.strength = FadedShadowStrength(surfaceWS.depth, _ShadowDistanceFade.x, _ShadowDistanceFade.y);
+
     int i;
     for (i = 0; i < _CascadeCount; i++)
     {
@@ -330,9 +330,7 @@ float GetOtherShadowAttenuation(OtherShadowData other, ShadowData global, Surfac
         shadow = GetOtherShadow(other, global, surfaceWS);
         shadow = MixBakedAndRealtimeShadows(global, shadow, other.shadowMaskChannel, other.strength);
     }
-    return GetOtherShadow(other, global, surfaceWS);
+    return shadow;
 }
-
-
 
 #endif

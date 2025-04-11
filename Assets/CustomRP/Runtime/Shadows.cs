@@ -265,7 +265,7 @@ public class Shadows
         // buffer.SetGlobalFloat(shadowDistanceId, settings.maxDistance);
 
         // Distance Fade
-        // buffer.SetGlobalVector(shadowDistanceFadeId, new Vector4(1f / settings.maxDistance, 1f / settings.distanceFade));
+        buffer.SetGlobalVector(shadowDistanceFadeId, new Vector4(1f / settings.maxDistance, 1f / settings.distanceFade));
         SetKeywords(cascadeBlendKeywords, (int)settings.directional.cascadeBlend - 1);
         buffer.EndSample(bufferName);
         ExecuteBuffer();
