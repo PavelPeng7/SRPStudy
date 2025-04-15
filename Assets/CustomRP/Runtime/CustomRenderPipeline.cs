@@ -20,12 +20,15 @@ public partial class CustomRenderPipeline : RenderPipeline
     // Unity2022后使用List
     protected override void Render(ScriptableRenderContext context, List<Camera> cameras) {
         for (int i = 0; i < cameras.Count; i++) {
-            renderer.Render(context, cameras[i], useDynamicBatching, useGPUInstancing, useLightsPerObject, shadowSettings);
+            renderer.Render(context, cameras[i], useDynamicBatching, useGPUInstancing, useLightsPerObject, shadowSettings, postFXSettings);
         }
     }
 
-    public CustomRenderPipeline(bool useDynamicBatching, bool useGPUInstancing, bool useSRPBatcher, bool useLightsPerObject, ShadowSettings shadowSettings) {
+    PostFXSettings postFXSettings;
+    
+    public CustomRenderPipeline(bool useDynamicBatching, bool useGPUInstancing, bool useSRPBatcher, bool useLightsPerObject, ShadowSettings shadowSettings, PostFXSettings postFXSettings) {
         // 通过构造函数传递配置
+        this.postFXSettings = postFXSettings;
         this.shadowSettings = shadowSettings;
         this.useDynamicBatching = useDynamicBatching;
         this.useGPUInstancing = useGPUInstancing;
