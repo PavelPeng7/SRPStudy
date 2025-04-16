@@ -26,6 +26,7 @@ public partial class PostFXStack : MonoBehaviour
     enum  Pass
     {
         BloomHorizontal,
+        BloomVertical,
         Copy
     }
 
@@ -64,13 +65,17 @@ public partial class PostFXStack : MonoBehaviour
 
         int i;
         for (i = 0; i < bloom.maxIterations; i++) {
+            
             if (height < bloom.downscaleLimit || width < bloom.downscaleLimit) {
                 break;
             }
+            int midId = toId - 1;
+            buffer.GetTemporaryRT(midId, width, height, 0, FilterMode.Bilinear, format);
             buffer.GetTemporaryRT(toId, width, height, 0, FilterMode.Bilinear, format);
-            Draw(fromId, toId, Pass.BloomHorizontal);
+            Draw(fromId, midId, Pass.BloomHorizontal);
+            Draw(midId, toId, Pass.BloomVertical);
             fromId = toId;
-            toId += 1;
+            toId += 2;
             width /= 2;
             height /= 2;
         }
@@ -78,7 +83,9 @@ public partial class PostFXStack : MonoBehaviour
         Draw(fromId, BuiltinRenderTextureType.CameraTarget, Pass.Copy);
 
         for (i -= 1; i >= 0; i--) {
-            buffer.ReleaseTemporaryRT(bloomPyramidId + i);
+            buffer.ReleaseTemporaryRT(fromId);
+            buffer.ReleaseTemporaryRT(fromId - 1);
+            fromId -= 2;
         }
         buffer.EndSample("Bloom");
     }
