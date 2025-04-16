@@ -24,12 +24,23 @@ Shader "Hidden/Custom RP/ Post FX Stack"
 
         Pass
         {
-            Name "Bloom Horizontal"
+            Name "Bloom Vertical"
             
             HLSLPROGRAM
                 #pragma target 3.5
                 #pragma vertex  DefaultPassVertex
                 #pragma fragment BloomVerticalPassFragment
+            ENDHLSL
+        }
+
+        Pass
+        {
+            Name "Bloom Combine"
+            
+            HLSLPROGRAM
+                #pragma target 3.5
+                #pragma vertex  DefaultPassVertex
+                #pragma fragment BloomCombinePassFragment
             ENDHLSL
         }
 
