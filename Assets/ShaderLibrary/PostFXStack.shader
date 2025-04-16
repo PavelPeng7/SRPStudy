@@ -13,6 +13,18 @@ Shader "Hidden/Custom RP/ Post FX Stack"
 
         Pass
         {
+            Name "Bloom Horizontal"
+            
+            HLSLPROGRAM
+                #pragma target 3.5
+                #pragma vertex  DefaultPassVertex
+                #pragma fragment BloomHorizontalPassFragment
+                #pragma fragment BloomVerticalPassFragment
+            ENDHLSL
+        }
+
+        Pass
+        {
             Name "Copy"
             
             HLSLPROGRAM

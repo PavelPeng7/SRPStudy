@@ -1,6 +1,13 @@
 #ifndef CUSTOM_POST_FX_PASSES_INCLUDE
 #define CUSTOM_POST_FX_PASSES_INCLUDE
 
+float4 _PostFXSource_TexelSize;
+
+float4 GetSourceTexelSize()
+{
+    return _PostFXSource_TexelSize;
+}
+
 struct Varings
 {
     float4 positionCS : SV_POSITION;
@@ -35,7 +42,23 @@ float4 GetSource(float2 screenUV)
 }
 
 float4 CopyPassFragment (Varings input) : SV_TARGET{
-    return float4(input.screenUV, 0.0, 1.0);
+    return GetSource(input.screenUV);
+}
+
+float4 BloomHorizontalPassFragment (Varings input) : SV_TARGET {
+    float3 color = 0.0;
+    float offsets[] = {
+        -4.0, -3.0, -2.0, -1.0, 0.0, 1.0, 2.0, 3.0, 4.0
+    };
+    float weights[] = {
+        0.01621622, 0.05405405, 0.12162162, 0.19459459, 0.22702703,
+        0.19459459, 0.12162162, 0.05405405, 0.01621622
+    };
+    for (int i = 0; i < 9; i++) {
+        float offset = offsets[i] * 2.0 * GetSourceTexelSize().x;
+        color += GetSource(input.screenUV + float2(offset, 0.0)).rgb * weights[i];
+    }
+    return float4(color, 1.0);
 }
 
 #endif

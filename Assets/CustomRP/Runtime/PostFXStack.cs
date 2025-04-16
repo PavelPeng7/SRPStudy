@@ -19,8 +19,13 @@ public partial class PostFXStack : MonoBehaviour
 
     private int fxSourceId = Shader.PropertyToID("_PostFXSource");
 
+    private const int maxBloomPyramidLevels = 16;
+
+    private int bloomPyramidId;
+
     enum  Pass
     {
+        BloomHorizontal,
         Copy
     }
 
@@ -32,7 +37,7 @@ public partial class PostFXStack : MonoBehaviour
     }
 
     public void Render(int sourceId) {
-        Draw(sourceId, BuiltinRenderTextureType.CameraTarget, Pass.Copy);
+        DoBloom(sourceId);
         context.ExecuteCommandBuffer(buffer);
         buffer.Clear();
     }
@@ -41,6 +46,41 @@ public partial class PostFXStack : MonoBehaviour
         buffer.SetGlobalTexture(fxSourceId, from);
         buffer.SetRenderTarget(to, RenderBufferLoadAction.DontCare, RenderBufferStoreAction.Store);
         buffer.DrawProcedural(Matrix4x4.identity, settings.Material, (int)pass, MeshTopology.Triangles, 3);
+    }
+
+    public PostFXStack() {
+        bloomPyramidId = Shader.PropertyToID("_BloomPyramid0");
+        for (int i = 1; i < maxBloomPyramidLevels * 2; i++) {
+            Shader.PropertyToID("_BloomPyramid" + i);
+        }
+    }
+
+    void DoBloom(int sourceId) {
+        buffer.BeginSample("Bloom");
+        PostFXSettings.BloomSettings bloom = settings.Bloom;
+        int width = camera.pixelWidth / 2, height = camera.pixelHeight / 2;
+        RenderTextureFormat format = RenderTextureFormat.Default;
+        int fromId = sourceId, toId = bloomPyramidId + 1;
+
+        int i;
+        for (i = 0; i < bloom.maxIterations; i++) {
+            if (height < bloom.downscaleLimit || width < bloom.downscaleLimit) {
+                break;
+            }
+            buffer.GetTemporaryRT(toId, width, height, 0, FilterMode.Bilinear, format);
+            Draw(fromId, toId, Pass.BloomHorizontal);
+            fromId = toId;
+            toId += 1;
+            width /= 2;
+            height /= 2;
+        }
+        
+        Draw(fromId, BuiltinRenderTextureType.CameraTarget, Pass.Copy);
+
+        for (i -= 1; i >= 0; i--) {
+            buffer.ReleaseTemporaryRT(bloomPyramidId + i);
+        }
+        buffer.EndSample("Bloom");
     }
     
     
