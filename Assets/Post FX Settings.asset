@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a17ce0b6d93324690b0950121a2aa915, type: 3}
+  m_Name: Post FX Settings
+  m_EditorClassIdentifier: 
+  postFXSettings: {fileID: 11400000}
+  shader: {fileID: 4800000, guid: d4c0e276fc534c41b3f53fb0e8b743ce, type: 3}
+  bloom:
+    maxIterations: 4
+    downscaleLimit: 1
+    bicubicUpsampling: 1
+    threshold: 0.65
+    thresholdKnee: 0
+    intensity: 0.28

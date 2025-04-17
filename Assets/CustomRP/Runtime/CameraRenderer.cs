@@ -12,6 +12,7 @@ using UnityEngine.Rendering;
 
 public partial class CameraRenderer
 {
+    private static int frameBufferId = Shader.PropertyToID("_CameraFrameBuffer");
     // 通过配置，加入命令到context直接执行渲染命令，如：绘制Skybox
     private ScriptableRenderContext context;
     
@@ -34,9 +35,10 @@ public partial class CameraRenderer
 
     // lighting实例，用于处理光照
     Lighting lighting = new Lighting();
+    private PostFXStack postFXStack = new PostFXStack();
     
     // 依赖RP提供合批策略配置
-    public void Render(ScriptableRenderContext context, Camera camera, bool useDynamicBatching, bool useGPUInstancing, bool useLightsPerObject, ShadowSettings shadowSettings) {
+    public void Render(ScriptableRenderContext context, Camera camera, bool useDynamicBatching, bool useGPUInstancing, bool useLightsPerObject, ShadowSettings shadowSettings, PostFXSettings postFXSettings) {
         this.context = context;
         this.camera = camera;
         PrepareBuffer();
@@ -51,15 +53,20 @@ public partial class CameraRenderer
         ExecuteBuffer();
         // 在绘制可见几何体之前，设置光照，阴影
         lighting.Setup(context, cullingResults, shadowSettings, useLightsPerObject);
+        postFXStack.Setup(context, camera, postFXSettings);
         buffer.EndSample(SampleName);
         Setup();
         // 绘制相机能看到的所有几何体
         DrawVisibleGeometry(useDynamicBatching, useGPUInstancing, useLightsPerObject);
         DrawUnsupportedShaders();
         // 最后绘制Gizmos
-        DrawGizmos();
-        // 渲染结束，清理光照数据，目前主要是清理阴影数据
-        lighting.Cleanup();
+        
+        DrawGizmosBeforeFX();
+        if (postFXStack.IsActive) {
+            postFXStack.Render(frameBufferId);
+        }
+        DrawGizmosAfterFX();
+        Cleanup();
         // 提交context中缓冲的渲染命令
         Submit();
     }
@@ -69,6 +76,20 @@ public partial class CameraRenderer
         context.SetupCameraProperties(camera);
         // 控制两个相机合并的方式
         CameraClearFlags flags = camera.clearFlags;
+
+        if (postFXStack.IsActive) {
+            if (flags > CameraClearFlags.Color) {
+                flags = CameraClearFlags.Color;
+            }
+            buffer.GetTemporaryRT(
+                frameBufferId, camera.pixelWidth, camera.pixelHeight,
+                32, FilterMode.Bilinear, RenderTextureFormat.Default
+                );
+            buffer.SetRenderTarget(
+                frameBufferId, RenderBufferLoadAction.DontCare,
+                RenderBufferStoreAction.Store
+                );
+        }
         // 在绘制新渲染之前清除旧的渲染屏幕
         // 清屏在设置好相机之后效率更高
         // flags枚举顺序：Skybox, Color, Depth, Nothing
@@ -144,4 +165,12 @@ public partial class CameraRenderer
         }
         return false;
     }
+
+    void Cleanup() {
+        lighting.Cleanup();
+        if (postFXStack.IsActive) {
+            buffer.ReleaseTemporaryRT(frameBufferId);
+        }
+    }
+    
 }
