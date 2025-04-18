@@ -1,6 +1,7 @@
 #ifndef CUSTOM_POST_FX_PASSES_INCLUDE
 #define CUSTOM_POST_FX_PASSES_INCLUDE
 
+#include "Packages/com.unity.render-pipelines.core/ShaderLibrary/Color.hlsl"
 #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/Filtering.hlsl"
 
 float4 _PostFXSource_TexelSize;
@@ -12,15 +13,15 @@ float4 GetSourceTexelSize()
     return _PostFXSource_TexelSize;
 }
 
-struct Varings
+struct Varyings
 {
     float4 positionCS : SV_POSITION;
     float2 screenUV : VAR_SCREEN_UV;
 };
 
-Varings DefaultPassVertex(uint vertexID : SV_VertexID)
+Varyings DefaultPassVertex(uint vertexID : SV_VertexID)
 {
-    Varings output;
+    Varyings output;
     output.positionCS = float4(
         vertexID <= 1 ? -1.0 : 3.0,
         vertexID == 1 ? 3.0 : -1.0,
@@ -57,11 +58,11 @@ float4 GetSource2(float2 screenUV)
     return SAMPLE_TEXTURE2D_LOD(_PostFXSource2, sampler_linear_clamp, screenUV, 0);
 }
 
-float4 CopyPassFragment (Varings input) : SV_TARGET{
+float4 CopyPassFragment (Varyings input) : SV_TARGET{
     return GetSource(input.screenUV);
 }
 
-float4 BloomHorizontalPassFragment (Varings input) : SV_TARGET {
+float4 BloomHorizontalPassFragment (Varyings input) : SV_TARGET {
     float3 color = 0.0;
     float offsets[] = {
         -4.0, -3.0, -2.0, -1.0, 0.0, 1.0, 2.0, 3.0, 4.0
@@ -77,7 +78,7 @@ float4 BloomHorizontalPassFragment (Varings input) : SV_TARGET {
     return float4(color, 1.0);
 }
 
-float4 BloomVerticalPassFragment (Varings input) : SV_TARGET {
+float4 BloomVerticalPassFragment (Varyings input) : SV_TARGET {
     float3 color = 0.0;
     float offsets[] = {
         -3.23076923, -1.38461538, 0.0, 1.38461538, 3.23076923
@@ -92,7 +93,7 @@ float4 BloomVerticalPassFragment (Varings input) : SV_TARGET {
     return float4(color, 1.0);
 }
 
-float4 BloomCombinePassFragment(Varings input) : SV_TARGET {
+float4 BloomCombinePassFragment(Varyings input) : SV_TARGET {
     float3 lowRes;
     if (_BloomBicubicUpsampling)
     {
@@ -118,10 +119,84 @@ float3 ApplyBloomThreshold(float3 color)
     return color * contribution;
 }
 
-float4 BloomPrefilterPassFragment(Varings input) : SV_TARGET
+float4 BloomPrefilterPassFragment(Varyings input) : SV_TARGET
 {
     float3 color = ApplyBloomThreshold(GetSource(input.screenUV).rgb);
     return float4(color, 1.0);
+}
+
+float4 BloomPrefilterFirefliesPassFragment(Varyings input) : SV_TARGET{
+    float3 color = 0.0;
+    float weightSum = 0.0;
+    float2 offsets[] = {
+         float2(0.0, 0.0),
+        float2(-1.0, -1.0),
+        float2(-1.0, -1.0), float2(-1.0, 1.0), float2(1.0, -1.0), float2(1.0, 1.0)
+    };
+    for (int i = 0; i < 5; i++)
+    {
+        float3 c = GetSource(input.screenUV + offsets[i] * GetSourceTexelSize().xy * 2.0).rgb;
+        c = ApplyBloomThreshold(c);
+        float w = 1.0 / (Luminance(c) + 1.0);
+        color += c;
+        weightSum += w;
+    }
+    color /= weightSum;
+    return float4(color, 1.0);
+}
+
+float4 BloomScatterPassFragment(Varyings input) : SV_TARGET
+{
+    float3 lowRes;
+    if (_BloomBicubicUpsampling)
+    {
+        lowRes = GetSourceBicubic(input.screenUV).rgb;
+    }
+    else
+    {
+        lowRes = GetSource(input.screenUV).rgb;
+    }
+    float3 highRes = GetSource2(input.screenUV).rgb;
+    return float4(lerp(highRes, lowRes, _BloomIntensity), 1.0);
+}
+
+
+float4 BloomScatterFinalPassFragment(Varyings input) : SV_TARGET
+{
+    float3 lowRes;
+    if (_BloomBicubicUpsampling)
+    {
+        lowRes = GetSourceBicubic(input.screenUV).rgb;
+    }
+    else
+    {
+        lowRes = GetSource(input.screenUV).rgb;
+    }
+    float3 highRes = GetSource2(input.screenUV).rgb;
+    lowRes += highRes - ApplyBloomThreshold(highRes);
+    return float4(lerp(highRes, lowRes, _BloomIntensity), 1.0);
+}
+
+float4 ToneMappingReinhardPassFragment(Varyings input) : SV_TARGET
+{
+    float4 color = GetSource(input.screenUV);
+    color.rgb = min(color.rgb, 60.0);
+    color.rgb /= color.rgb + 1.0;
+    return color;
+}
+
+float4 ToneMappingNeutralPassFragment(Varyings input) : SV_TARGET{
+    float4 color = GetSource(input.screenUV);
+    color.rgb = min(color.rgb, 60.0);
+    color.rgb = NeutralTonemap(color.rgb);
+    return color;
+}
+
+float4 ToneMappingACESPassFragment(Varyings input) : SV_TARGET{
+    float4 color = GetSource(input.screenUV);
+    color.rgb = min(color.rgb, 60.0);
+    color.rgb = AcesTonemap(unity_to_ACES(color.rgb));
+    return color;
 }
 
 #endif

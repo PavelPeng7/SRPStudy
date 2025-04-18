@@ -27,6 +27,8 @@ public partial class CameraRenderer
     
     Camera camera;
     CullingResults cullingResults;
+
+    private bool useHDR;
     
     // 允许渲染的RenderPass
     static ShaderTagId 
@@ -38,7 +40,7 @@ public partial class CameraRenderer
     private PostFXStack postFXStack = new PostFXStack();
     
     // 依赖RP提供合批策略配置
-    public void Render(ScriptableRenderContext context, Camera camera, bool useDynamicBatching, bool useGPUInstancing, bool useLightsPerObject, ShadowSettings shadowSettings, PostFXSettings postFXSettings) {
+    public void Render(ScriptableRenderContext context, Camera camera, bool allowHDR,bool useDynamicBatching, bool useGPUInstancing, bool useLightsPerObject, ShadowSettings shadowSettings, PostFXSettings postFXSettings) {
         this.context = context;
         this.camera = camera;
         PrepareBuffer();
@@ -48,12 +50,13 @@ public partial class CameraRenderer
         if (!Cull(shadowSettings.maxDistance, camera)) {
             return;
         }
+        useHDR = allowHDR && camera.allowHDR;
         // 插入开始和结束的profiler samples，参数使用当前相机的名字
         buffer.BeginSample(SampleName);
         ExecuteBuffer();
         // 在绘制可见几何体之前，设置光照，阴影
         lighting.Setup(context, cullingResults, shadowSettings, useLightsPerObject);
-        postFXStack.Setup(context, camera, postFXSettings);
+        postFXStack.Setup(context, camera, postFXSettings, useHDR);
         buffer.EndSample(SampleName);
         Setup();
         // 绘制相机能看到的所有几何体
@@ -83,7 +86,7 @@ public partial class CameraRenderer
             }
             buffer.GetTemporaryRT(
                 frameBufferId, camera.pixelWidth, camera.pixelHeight,
-                32, FilterMode.Bilinear, RenderTextureFormat.Default
+                32, FilterMode.Bilinear, useHDR ? RenderTextureFormat.DefaultHDR : RenderTextureFormat.Default
                 );
             buffer.SetRenderTarget(
                 frameBufferId, RenderBufferLoadAction.DontCare,
