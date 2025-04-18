@@ -44,11 +44,24 @@ public class PostFXSettings : ScriptableObject
 
         [Min(0f)]
         public float intensity;
+
+        public bool fadeFireflies;
+        
+        public enum Mode
+        {
+            Additive, Scattering
+        }
+
+        public Mode mode;
+
+        [Range(0.05f, 0.95f)]
+        public float scatter;
     }
 
     [SerializeField]
-    BloomSettings bloom = default;
-    public BloomSettings Bloom => bloom;
+    public BloomSettings Bloom = new BloomSettings {
+        scatter = 0.7f
+    };
 
 
 }

@@ -9,6 +9,9 @@ public class CustomRenderPipelineAssets : RenderPipelineAsset
 {
     // SRP batch和GPU Instance需要shader中的支持，这里可以选择是否启用
     [SerializeField]
+    private bool allowHDR = true;
+    
+    [SerializeField]
     bool useDynamicBatching = true,
         useGPUInstancing = true,
         useSRPBatcher = true,
@@ -23,6 +26,6 @@ public class CustomRenderPipelineAssets : RenderPipelineAsset
     // 覆写CreatePipeline方法，并且属性是protected保证只有RenderPipelineAsset及其子类可以调用它
     protected override RenderPipeline CreatePipeline() {
         // 返回一个合法可用的pipeline
-        return new CustomRenderPipeline(useDynamicBatching, useGPUInstancing, useSRPBatcher, useLightPerObject, shadows, postFXSettings);
+        return new CustomRenderPipeline(allowHDR, useDynamicBatching, useGPUInstancing, useSRPBatcher, useLightPerObject, shadows, postFXSettings);
     }
 }

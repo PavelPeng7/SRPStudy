@@ -5,6 +5,7 @@ using UnityEngine.Rendering;
 // asset中需要返回的RP instance，所以继承自RenderPipeline
 public partial class CustomRenderPipeline : RenderPipeline
 {
+    private bool allowHDR;
     private CameraRenderer renderer = new CameraRenderer();
     // 通过字段跟踪合批策略配置
     bool useDynamicBatching, useGPUInstancing, useLightsPerObject;
@@ -20,14 +21,15 @@ public partial class CustomRenderPipeline : RenderPipeline
     // Unity2022后使用List
     protected override void Render(ScriptableRenderContext context, List<Camera> cameras) {
         for (int i = 0; i < cameras.Count; i++) {
-            renderer.Render(context, cameras[i], useDynamicBatching, useGPUInstancing, useLightsPerObject, shadowSettings, postFXSettings);
+            renderer.Render(context, cameras[i], allowHDR,useDynamicBatching, useGPUInstancing, useLightsPerObject, shadowSettings, postFXSettings);
         }
     }
 
     PostFXSettings postFXSettings;
     
-    public CustomRenderPipeline(bool useDynamicBatching, bool useGPUInstancing, bool useSRPBatcher, bool useLightsPerObject, ShadowSettings shadowSettings, PostFXSettings postFXSettings) {
+    public CustomRenderPipeline(bool allowHDR, bool useDynamicBatching, bool useGPUInstancing, bool useSRPBatcher, bool useLightsPerObject, ShadowSettings shadowSettings, PostFXSettings postFXSettings) {
         // 通过构造函数传递配置
+        this.allowHDR = allowHDR;
         this.postFXSettings = postFXSettings;
         this.shadowSettings = shadowSettings;
         this.useDynamicBatching = useDynamicBatching;
