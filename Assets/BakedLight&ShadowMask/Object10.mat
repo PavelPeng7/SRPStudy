@@ -7,18 +7,18 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: Object6
+  m_Name: Object10
   m_Shader: {fileID: 4800000, guid: fe477732fc88845b784792c249a39095, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords:
   - _RECEIVE_SHADOWS
-  m_InvalidKeywords:
-  - _SHADOWS_ON
+  - _SHADOWS_CLIP
+  m_InvalidKeywords: []
   m_LightmapFlags: 2
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
-  m_CustomRenderQueue: -1
+  m_CustomRenderQueue: 2000
   stringTagMap: {}
   disabledShaderPasses: []
   m_LockedProperties: 
@@ -50,7 +50,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _EmissionMap:
-        m_Texture: {fileID: 10300, guid: 0000000000000000f000000000000000, type: 0}
+        m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MainTex:
@@ -102,7 +102,7 @@ Material:
     - _Parallax: 0.02
     - _PremulAlpha: 0
     - _ReceiveShadows: 1
-    - _Shadows: 0
+    - _Shadows: 1
     - _Smoothness: 0.5
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
@@ -110,7 +110,7 @@ Material:
     - _UVSec: 0
     - _ZWrite: 1
     m_Colors:
-    - _BaseColor: {r: 0.15294117, g: 0.8862745, b: 0.4962296, a: 1}
-    - _Color: {r: 0.15294117, g: 0.8862745, b: 0.4962296, a: 1}
-    - _EmissionColor: {r: 5.9921565, g: 2.5607488, b: 0, a: 1}
+    - _BaseColor: {r: 0.5833626, g: 0.47450984, b: 1, a: 1}
+    - _Color: {r: 0.5833626, g: 0.47450984, b: 1, a: 1}
+    - _EmissionColor: {r: 2.9960763, g: 2.9960763, b: 2.9960763, a: 1}
   m_BuildTextureStacks: []

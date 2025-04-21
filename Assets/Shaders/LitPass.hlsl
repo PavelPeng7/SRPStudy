@@ -116,6 +116,6 @@ float4 LitPassFragment(Varings input):SV_TARGET
     
     float3 color = GetLighting(surface, brdf, gi);
     color += GetEmission(config);
-    return float4(color, surface.alpha);
+    return float4(color, GetFinalAlpha(surface.alpha));
 }
 #endif

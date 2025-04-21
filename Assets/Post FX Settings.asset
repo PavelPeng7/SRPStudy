@@ -15,18 +15,18 @@ MonoBehaviour:
   postFXSettings: {fileID: 11400000}
   shader: {fileID: 4800000, guid: d4c0e276fc534c41b3f53fb0e8b743ce, type: 3}
   Bloom:
-    maxIterations: 13
-    downscaleLimit: 53
+    maxIterations: 16
+    downscaleLimit: 100
     bicubicUpsampling: 1
-    threshold: 0.32
-    thresholdKnee: 0
-    intensity: 0.06
+    threshold: 1.62
+    thresholdKnee: 1
+    intensity: 4.49
     fadeFireflies: 1
     mode: 1
     scatter: 0.95
   colorAdjustments:
-    postExposure: 1.02
-    contrast: 35
+    postExposure: 0.5
+    contrast: 0
     colorFilter: {r: 1, g: 1, b: 1, a: 0}
     hueShift: 0
     saturation: 0
@@ -34,8 +34,20 @@ MonoBehaviour:
     temprature: 4
     tint: -4
   splitToning:
-    shadows: {r: 0.017799927, g: 0.052990172, b: 0.754717, a: 1}
-    hightlights: {r: 1, g: 0.85579413, b: 0.5707547, a: 1}
+    shadows: {r: 0.30153078, g: 0.31244493, b: 0.5283019, a: 1}
+    hightlights: {r: 1, g: 0.91833997, b: 0.759434, a: 1}
     balance: 0
+  channelMixer:
+    red: {x: 1, y: 0, z: 0}
+    green: {x: 0, y: 1, z: 0}
+    blue: {x: 0, y: 0, z: 1}
+  shadowsMidtoneshighlights:
+    shadows: {r: 1, g: 1, b: 1, a: 1}
+    midtones: {r: 1, g: 1, b: 1, a: 1}
+    highlights: {r: 1, g: 1, b: 1, a: 1}
+    shadowsStart: 0
+    shadowsEnd: 0.3
+    highLightsStart: 0.55
+    highLightsEnd: 1
   toneMapping:
-    mode: 3
+    mode: 1

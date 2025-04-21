@@ -48,6 +48,6 @@ float4 UnlitPassFragment(Varings input):SV_TARGET
     #endif
     
     clip(base.a - UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _Cutoff));
-    return base;
+    return float4(base.rgb, GetFinalAlpha(base.a));
 }
 #endif

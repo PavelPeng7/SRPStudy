@@ -38,11 +38,17 @@ public partial class CameraRenderer
     // lighting实例，用于处理光照
     Lighting lighting = new Lighting();
     private PostFXStack postFXStack = new PostFXStack();
-    
+
+    private static CameraSettings defaultCameraSettings = new CameraSettings();
+
     // 依赖RP提供合批策略配置
     public void Render(ScriptableRenderContext context, Camera camera, bool allowHDR,bool useDynamicBatching, bool useGPUInstancing, bool useLightsPerObject, ShadowSettings shadowSettings, PostFXSettings postFXSettings, int colorLUTResolution) {
         this.context = context;
         this.camera = camera;
+
+        var crpCamera = camera.GetComponent<CustomRenderPipelineCamera>();
+        CameraSettings cameraSettings = crpCamera ? crpCamera.Settings : defaultCameraSettings;
+        
         PrepareBuffer();
         // 为了在Scene视图中绘制UI，我们需要调用PrepareForSceneWindow
         PrepareForSceneWindow();
@@ -56,7 +62,7 @@ public partial class CameraRenderer
         ExecuteBuffer();
         // 在绘制可见几何体之前，设置光照，阴影
         lighting.Setup(context, cullingResults, shadowSettings, useLightsPerObject);
-        postFXStack.Setup(context, camera, postFXSettings, useHDR, colorLUTResolution);
+        postFXStack.Setup(context, camera, postFXSettings, useHDR, colorLUTResolution, cameraSettings.finalBlendMode);
         buffer.EndSample(SampleName);
         Setup();
         // 绘制相机能看到的所有几何体
