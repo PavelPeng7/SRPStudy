@@ -40,7 +40,7 @@ public partial class CameraRenderer
     private PostFXStack postFXStack = new PostFXStack();
     
     // 依赖RP提供合批策略配置
-    public void Render(ScriptableRenderContext context, Camera camera, bool allowHDR,bool useDynamicBatching, bool useGPUInstancing, bool useLightsPerObject, ShadowSettings shadowSettings, PostFXSettings postFXSettings) {
+    public void Render(ScriptableRenderContext context, Camera camera, bool allowHDR,bool useDynamicBatching, bool useGPUInstancing, bool useLightsPerObject, ShadowSettings shadowSettings, PostFXSettings postFXSettings, int colorLUTResolution) {
         this.context = context;
         this.camera = camera;
         PrepareBuffer();
@@ -56,7 +56,7 @@ public partial class CameraRenderer
         ExecuteBuffer();
         // 在绘制可见几何体之前，设置光照，阴影
         lighting.Setup(context, cullingResults, shadowSettings, useLightsPerObject);
-        postFXStack.Setup(context, camera, postFXSettings, useHDR);
+        postFXStack.Setup(context, camera, postFXSettings, useHDR, colorLUTResolution);
         buffer.EndSample(SampleName);
         Setup();
         // 绘制相机能看到的所有几何体

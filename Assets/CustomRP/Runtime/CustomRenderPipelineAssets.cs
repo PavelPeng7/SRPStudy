@@ -23,9 +23,15 @@ public class CustomRenderPipelineAssets : RenderPipelineAsset
     [SerializeField]
     PostFXSettings postFXSettings = default;
     
+    public enum ColorLutResolution{ _16 = 16, _32 = 32, _64 = 64}
+
+    [SerializeField]
+    private ColorLutResolution colorLUTResolution = ColorLutResolution._32;
+
+    
     // 覆写CreatePipeline方法，并且属性是protected保证只有RenderPipelineAsset及其子类可以调用它
     protected override RenderPipeline CreatePipeline() {
         // 返回一个合法可用的pipeline
-        return new CustomRenderPipeline(allowHDR, useDynamicBatching, useGPUInstancing, useSRPBatcher, useLightPerObject, shadows, postFXSettings);
+        return new CustomRenderPipeline(allowHDR, useDynamicBatching, useGPUInstancing, useSRPBatcher, useLightPerObject, shadows, postFXSettings, (int)colorLUTResolution);
     }
 }
