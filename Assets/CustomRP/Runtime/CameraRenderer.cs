@@ -48,6 +48,10 @@ public partial class CameraRenderer
 
         var crpCamera = camera.GetComponent<CustomRenderPipelineCamera>();
         CameraSettings cameraSettings = crpCamera ? crpCamera.Settings : defaultCameraSettings;
+
+        if (cameraSettings.overridePostFX) {
+            postFXSettings = cameraSettings.PostFXSettings;
+        }
         
         PrepareBuffer();
         // 为了在Scene视图中绘制UI，我们需要调用PrepareForSceneWindow

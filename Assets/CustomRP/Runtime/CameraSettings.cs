@@ -5,6 +5,9 @@ using UnityEngine.Rendering;
 [System.Serializable]
 public class CameraSettings
 {
+    public bool overridePostFX = false;
+    public PostFXSettings PostFXSettings = default;
+    
     [Serializable]
     public struct FinalBlendMode
     {
