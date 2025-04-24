@@ -9,4 +9,5 @@ public class CustomRenderPipelineCamera : MonoBehaviour
     private CameraSettings settings = default;
 
     public CameraSettings Settings => settings ?? (settings = new CameraSettings());
+    
 }

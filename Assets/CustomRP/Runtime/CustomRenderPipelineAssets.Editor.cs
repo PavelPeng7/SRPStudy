@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Rendering;
 
-partial class CustomRenderPipelineAssets : RenderPipelineAsset
+public partial class CustomRenderPipelineAssets : RenderPipelineAsset
 {
 #if UNITY_EDITOR
     static string[] renderingLayerNames;

@@ -1,12 +1,14 @@
 using System;
 using UnityEngine;
 using UnityEngine.Rendering;
+using System;
 
 [System.Serializable]
 public class CameraSettings
 {
     public bool overridePostFX = false;
     public PostFXSettings PostFXSettings = default;
+    [RenderingLayerMaskField]
     public int renderingLayerMask = -1;
     public bool maskLights = false;
     
