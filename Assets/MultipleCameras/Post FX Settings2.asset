@@ -15,27 +15,27 @@ MonoBehaviour:
   postFXSettings: {fileID: 11400000}
   shader: {fileID: 4800000, guid: d4c0e276fc534c41b3f53fb0e8b743ce, type: 3}
   Bloom:
-    maxIterations: 16
-    downscaleLimit: 72
-    bicubicUpsampling: 1
-    threshold: 0.06
-    thresholdKnee: 1
-    intensity: 44.7
-    fadeFireflies: 1
-    mode: 1
-    scatter: 0.95
+    maxIterations: 0
+    downscaleLimit: 0
+    bicubicUpsampling: 0
+    threshold: 0
+    thresholdKnee: 0
+    intensity: 0
+    fadeFireflies: 0
+    mode: 0
+    scatter: 0.7
   colorAdjustments:
-    postExposure: 1
+    postExposure: 0
     contrast: 0
-    colorFilter: {r: 1, g: 1, b: 1, a: 0}
+    colorFilter: {r: 1, g: 1, b: 1, a: 1}
     hueShift: 0
     saturation: 0
   whiteBalance:
-    temprature: 4
-    tint: -4
+    temprature: 0
+    tint: 0
   splitToning:
-    shadows: {r: 0.30153078, g: 0.31244493, b: 0.5283019, a: 1}
-    hightlights: {r: 1, g: 0.91833997, b: 0.759434, a: 1}
+    shadows: {r: 0.5, g: 0.5, b: 0.5, a: 1}
+    hightlights: {r: 0.5, g: 0.5, b: 0.5, a: 1}
     balance: 0
   channelMixer:
     red: {x: 1, y: 0, z: 0}
@@ -50,4 +50,4 @@ MonoBehaviour:
     highLightsStart: 0.55
     highLightsEnd: 1
   toneMapping:
-    mode: 1
+    mode: 0

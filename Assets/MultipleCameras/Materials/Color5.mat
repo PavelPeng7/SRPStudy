@@ -7,19 +7,18 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: DissolveBall
+  m_Name: Color5
   m_Shader: {fileID: 4800000, guid: 2c47e65ba6265420fadfc84b99508931, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
-  m_ValidKeywords:
-  - _CLIPPING
+  m_ValidKeywords: []
   m_InvalidKeywords:
   - _RECEIVE_SHADOWS
   - _SHADOWS_ON
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
-  m_CustomRenderQueue: 2450
+  m_CustomRenderQueue: -1
   stringTagMap: {}
   disabledShaderPasses: []
   m_LockedProperties: 
@@ -27,7 +26,7 @@ Material:
     serializedVersion: 3
     m_TexEnvs:
     - _BaseMap:
-        m_Texture: {fileID: 2800000, guid: 53cb65305a7c74f37a8d5e6934509b82, type: 3}
+        m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _BumpMap:
@@ -55,7 +54,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MainTex:
-        m_Texture: {fileID: 2800000, guid: 53cb65305a7c74f37a8d5e6934509b82, type: 3}
+        m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MaskMap:
@@ -81,8 +80,8 @@ Material:
     m_Ints: []
     m_Floats:
     - _BumpScale: 1
-    - _Clipping: 1
-    - _Cutoff: 0.622
+    - _Clipping: 0
+    - _Cutoff: 0.5
     - _DetailAlbedo: 1
     - _DetailMapToggle: 0
     - _DetailNormalMapScale: 1
@@ -111,7 +110,7 @@ Material:
     - _UVSec: 0
     - _ZWrite: 1
     m_Colors:
-    - _BaseColor: {r: 2.342685, g: 0.69272935, b: 0, a: 1}
-    - _Color: {r: 1, g: 0.2670601, b: 0.07843137, a: 0.90588236}
-    - _EmissionColor: {r: 1.9450982, g: 0.27090505, b: 0, a: 1}
+    - _BaseColor: {r: 2.1185474, g: 2.0856512, b: 0.16637802, a: 1}
+    - _Color: {r: 0.07843137, g: 0.4929679, b: 1, a: 1}
+    - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
   m_BuildTextureStacks: []
