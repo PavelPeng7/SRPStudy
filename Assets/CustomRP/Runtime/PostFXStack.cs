@@ -105,6 +105,7 @@ public partial class PostFXStack : MonoBehaviour
             width /= 2;
             height /= 2;
         }
+        buffer.ReleaseTemporaryRT(bloomPrefilterId);
 
         buffer.SetGlobalFloat(bloomBucibicUpsamplingId, bloom.bicubicUpsampling ? 1f : 0f);
         buffer.SetGlobalFloat(bloomIntensityId, 1f);
@@ -129,6 +130,5 @@ public partial class PostFXStack : MonoBehaviour
         Draw(fromId, BuiltinRenderTextureType.CameraTarget, Pass.BloomCombine);
         buffer.ReleaseTemporaryRT(fromId);
         buffer.EndSample("Bloom");
-        buffer.ReleaseTemporaryRT(bloomPrefilterId);
     }
 }
