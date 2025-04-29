@@ -87,13 +87,13 @@ float4 BloomVerticalPassFragment (Varyings input) : SV_TARGET {
         0.07027027, 0.31621622, 0.22702703, 0.31621622, 0.07027027
     };
     for (int i = 0; i < 5; i++) {
-        float offset = offsets[i] * 2.0 * GetSourceTexelSize().y;
+        float offset = offsets[i] * GetSourceTexelSize().y;
         color += GetSource(input.screenUV + float2(0.0, offset)).rgb * weights[i];
     }
     return float4(color, 1.0);
 }
 
-float4 BloomCombinePassFragment(Varyings input) : SV_TARGET {
+float4 BloomAddPassFragment(Varyings input) : SV_TARGET {
     float3 lowRes;
     if (_BloomBicubicUpsampling)
     {
@@ -131,7 +131,7 @@ float4 BloomPrefilterFirefliesPassFragment(Varyings input) : SV_TARGET{
     float2 offsets[] = {
          float2(0.0, 0.0),
         float2(-1.0, -1.0),
-        float2(-1.0, -1.0), float2(-1.0, 1.0), float2(1.0, -1.0), float2(1.0, 1.0)
+        float2(-1.0, 1.0), float2(1.0, -1.0), float2(1.0, 1.0)
     };
     for (int i = 0; i < 5; i++)
     {

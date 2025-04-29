@@ -36,10 +36,9 @@ public partial class PostFXStack : MonoBehaviour
     {
         BloomHorizontal,
         BloomVertical,
-        BloomCombine,
+        BloomAdd,
         BloomPrefilter,
         BloomPrefilterFireflies,
-        BloomAdd,
         BloomScatter,
         BloomScatterFinal,
         ToneMappingACES,
@@ -121,6 +120,7 @@ public partial class PostFXStack : MonoBehaviour
             width /= 2;
             height /= 2;
         }
+        buffer.ReleaseTemporaryRT(bloomPrefilterId);
 
         buffer.SetGlobalFloat(bloomBucibicUpsamplingId, bloom.bicubicUpsampling ? 1f : 0f);
         Pass combinePass, finalPass;
@@ -159,7 +159,7 @@ public partial class PostFXStack : MonoBehaviour
         Draw(fromId, bloomResultId, finalPass);
         buffer.ReleaseTemporaryRT(fromId);
         buffer.EndSample("Bloom");
-        buffer.ReleaseTemporaryRT(bloomPrefilterId);
+        
         return true;
     }
 

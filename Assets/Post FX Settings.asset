@@ -15,14 +15,14 @@ MonoBehaviour:
   postFXSettings: {fileID: 11400000}
   shader: {fileID: 4800000, guid: d4c0e276fc534c41b3f53fb0e8b743ce, type: 3}
   Bloom:
-    maxIterations: 13
-    downscaleLimit: 53
+    maxIterations: 16
+    downscaleLimit: 1
     bicubicUpsampling: 1
-    threshold: 0.32
-    thresholdKnee: 0
-    intensity: 0.06
+    threshold: 0.98
+    thresholdKnee: 0.45
+    intensity: 1.08
     fadeFireflies: 1
     mode: 1
-    scatter: 0.95
+    scatter: 0.5
   toneMapping:
-    mode: 0
+    mode: -1

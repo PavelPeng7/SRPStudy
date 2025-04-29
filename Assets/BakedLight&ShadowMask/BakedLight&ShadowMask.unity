@@ -165,7 +165,7 @@ ReflectionProbe:
   m_CullingMask:
     serializedVersion: 2
     m_Bits: 4294967295
-  m_IntensityMultiplier: 1
+  m_IntensityMultiplier: 1.05
   m_BlendDistance: 1
   m_HDR: 1
   m_BoxProjection: 0
@@ -2912,7 +2912,7 @@ Light:
   m_Type: 1
   m_Shape: 0
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_Intensity: 0.5
+  m_Intensity: 1.83
   m_Range: 10
   m_SpotAngle: 30
   m_InnerSpotAngle: 21.80208
@@ -3216,7 +3216,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: -0.32, y: 1.322, z: -1.124}
-  m_LocalScale: {x: 0.69464064, y: 0.69464064, z: 0.69464064}
+  m_LocalScale: {x: 0.15138015, y: 0.15138015, z: 0.15138015}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 122344897}
