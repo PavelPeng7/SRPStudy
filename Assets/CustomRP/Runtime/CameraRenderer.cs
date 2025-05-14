@@ -78,7 +78,7 @@ public partial class CameraRenderer
         if (postFXStack.IsActive) {
             postFXStack.Render(frameBufferId);
         }
-        DrawGizmosAfterFX();
+        // DrawGizmosAfterFX();
         Cleanup();
         // 提交context中缓冲的渲染命令
         Submit();

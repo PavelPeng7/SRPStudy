@@ -98,7 +98,7 @@ float4 BloomVerticalPassFragment (Varyings input) : SV_TARGET {
         0.07027027, 0.31621622, 0.22702703, 0.31621622, 0.07027027
     };
     for (int i = 0; i < 5; i++) {
-        float offset = offsets[i] * 2.0 * GetSourceTexelSize().y;
+        float offset = offsets[i] * GetSourceTexelSize().y;
         color += GetSource(input.screenUV + float2(0.0, offset)).rgb * weights[i];
     }
     return float4(color, 1.0);
