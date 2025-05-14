@@ -115,7 +115,7 @@ float4 BloomAddPassFragment(Varyings input) : SV_TARGET {
         lowRes = GetSource(input.screenUV).rgb;
     }
     float4 highRes = GetSource2(input.screenUV);
-    return float4(lowRes * _BloomIntensity + highRes.rgb, 0);
+    return float4(lowRes * _BloomIntensity + highRes.rgb, highRes.a);
 }
 
 float4 _BloomThreshold;
