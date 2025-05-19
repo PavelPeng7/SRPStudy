@@ -11,7 +11,7 @@ public class PostFXSettings : ScriptableObject
     [SerializeField]
     private Shader shader = default;
 
-    [System.NonSerialized]
+    [NonSerialized]
     private Material material;
 
     public Material Material
@@ -26,7 +26,7 @@ public class PostFXSettings : ScriptableObject
         }
     }
     
-    [System.Serializable]
+    [Serializable]
     public class BloomSettings
     {
         [Range(0f, 16f)]

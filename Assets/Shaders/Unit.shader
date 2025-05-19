@@ -20,7 +20,7 @@ Shader "Custom RP/Unlit"
 
         Pass
         {
-            Blend [_SrcBlend] [_DstBlend]
+            Blend [_SrcBlend] [_DstBlend], One OneMinusSrcAlpha
             ZWrite [_ZWrite]
             HLSLPROGRAM
             // pragma来自与希腊语含义是一个操作，在计算机语言上多用来表示发出一个特殊的编译指令

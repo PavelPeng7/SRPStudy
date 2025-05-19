@@ -102,6 +102,7 @@ float4 LitPassFragment(Varings input):SV_TARGET
     surface.smoothness = GetSmoothness(config);
     surface.fresnelStrength = GetFresnel(config);
     surface.dither = InterleavedGradientNoise(input.positionCS.xy, 0);
+    surface.renderingLayerMask = asuint(unity_RenderingLayer.x);
     surface.viewDirection = normalize(_WorldSpaceCameraPos - input.positionWS);
     // 世界空间转换到观察空间取z值取反获得深度，左手坐标系z轴朝屏幕外
     surface.depth = -TransformWorldToView(input.positionCS.z);
@@ -116,6 +117,6 @@ float4 LitPassFragment(Varings input):SV_TARGET
     
     float3 color = GetLighting(surface, brdf, gi);
     color += GetEmission(config);
-    return float4(color, surface.alpha);
+    return float4(color, GetFinalAlpha(surface.alpha));
 }
 #endif

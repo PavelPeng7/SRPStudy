@@ -9,7 +9,11 @@ UNITY_INSTANCING_BUFFER_START(UnityPerMaterial)
     UNITY_DEFINE_INSTANCED_PROP(float4, _BaseColor)
     UNITY_DEFINE_INSTANCED_PROP(float, _Cutoff)
     UNITY_DEFINE_INSTANCED_PROP(float, _Fresnel)
+    UNITY_DEFINE_INSTANCED_PROP(float, _ZWrite)
 UNITY_INSTANCING_BUFFER_END(UnityPerMaterial)
+
+// 简化获取材质参数的代码
+#define INPUT_PROP(name) UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, name)
 
 struct InputConfig
 {
@@ -50,4 +54,7 @@ float GetFresnel (InputConfig c)
     return UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _Fresnel);
 }
 
+float GetFinalAlpha (float alpha) {
+    return INPUT_PROP(_ZWrite) ? 1.0 : alpha;
+}
 #endif

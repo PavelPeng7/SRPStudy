@@ -38,11 +38,21 @@ public partial class CameraRenderer
     // lighting实例，用于处理光照
     Lighting lighting = new Lighting();
     private PostFXStack postFXStack = new PostFXStack();
-    
+
+    private static CameraSettings defaultCameraSettings = new CameraSettings();
+
     // 依赖RP提供合批策略配置
     public void Render(ScriptableRenderContext context, Camera camera, bool allowHDR,bool useDynamicBatching, bool useGPUInstancing, bool useLightsPerObject, ShadowSettings shadowSettings, PostFXSettings postFXSettings, int colorLUTResolution) {
         this.context = context;
         this.camera = camera;
+
+        var crpCamera = camera.GetComponent<CustomRenderPipelineCamera>();
+        CameraSettings cameraSettings = crpCamera ? crpCamera.Settings : defaultCameraSettings;
+
+        if (cameraSettings.overridePostFX) {
+            postFXSettings = cameraSettings.PostFXSettings;
+        }
+        
         PrepareBuffer();
         // 为了在Scene视图中绘制UI，我们需要调用PrepareForSceneWindow
         PrepareForSceneWindow();
@@ -55,12 +65,12 @@ public partial class CameraRenderer
         buffer.BeginSample(SampleName);
         ExecuteBuffer();
         // 在绘制可见几何体之前，设置光照，阴影
-        lighting.Setup(context, cullingResults, shadowSettings, useLightsPerObject);
-        postFXStack.Setup(context, camera, postFXSettings, useHDR, colorLUTResolution);
+        lighting.Setup(context, cullingResults, shadowSettings, useLightsPerObject, cameraSettings.maskLights ? cameraSettings.renderingLayerMask : -1);
+        postFXStack.Setup(context, camera, postFXSettings, useHDR, colorLUTResolution, cameraSettings.finalBlendMode);
         buffer.EndSample(SampleName);
         Setup();
         // 绘制相机能看到的所有几何体
-        DrawVisibleGeometry(useDynamicBatching, useGPUInstancing, useLightsPerObject);
+        DrawVisibleGeometry(useDynamicBatching, useGPUInstancing, useLightsPerObject, cameraSettings.renderingLayerMask);
         DrawUnsupportedShaders();
         // 最后绘制Gizmos
         
@@ -68,7 +78,7 @@ public partial class CameraRenderer
         if (postFXStack.IsActive) {
             postFXStack.Render(frameBufferId);
         }
-        DrawGizmosAfterFX();
+        // DrawGizmosAfterFX();
         Cleanup();
         // 提交context中缓冲的渲染命令
         Submit();
@@ -119,7 +129,7 @@ public partial class CameraRenderer
     }
     
     // 输入合批策略配置
-    void DrawVisibleGeometry(bool useDynamicBatching, bool useGPUInstancing, bool useLightsPerObject) {
+    void DrawVisibleGeometry(bool useDynamicBatching, bool useGPUInstancing, bool useLightsPerObject, int renderingLayerMask) {
         PerObjectData lightPerObjectFlags = useLightsPerObject ? PerObjectData.LightData | PerObjectData.LightIndices : PerObjectData.None;
         
         // 决定使用正交或基于距离的排序
@@ -141,7 +151,7 @@ public partial class CameraRenderer
         };
         // LitPass加入到需要被渲染的Passes中
         drawingSettings.SetShaderPassName(1, litShaderTagId);
-        var filteringSettings = new FilteringSettings(RenderQueueRange.opaque);
+        var filteringSettings = new FilteringSettings(RenderQueueRange.opaque, renderingLayerMask: (uint)renderingLayerMask);
         context.DrawRenderers(cullingResults, ref drawingSettings, ref filteringSettings);
         
         // 绘制天空盒
