@@ -416,8 +416,14 @@ public class Shadows
     void RenderDirectionalShadows(int index, int split, int tileSize)
     {
         ShadowedDirectionalLight light = shadowedDirectionalLights[index];
-        var shadowSettings = new ShadowDrawingSettings(cullingResults, light.visibleLightIndex,
-            BatchCullingProjectionType.Orthographic);
+        // 启用rendering layers mask
+        var shadowSettings = new ShadowDrawingSettings(
+            cullingResults, light.visibleLightIndex,
+            BatchCullingProjectionType.Perspective
+        ) {
+            useRenderingLayerMaskTest = true
+        };
+        
         int cascadeCount = settings.directional.cascadeCount;
         int tileOffset = index * cascadeCount;
         Vector3 ratios = settings.directional.CascadeRatios;

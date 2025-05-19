@@ -13,9 +13,12 @@ public class RenderingLayerMaskDrawer : PropertyDrawer {
         EditorGUI.BeginChangeCheck();
         int mask = property.intValue;
         bool isUint = property.type == "uint";
+        // SerialzedProperty采用Uint格式32位有符号整数，而layermask是32位无符号整数，使用位mask原理
+        // 当取到SerialzedProperty取到32时也就是100...000表示的是uint的最大值，对应int的是-1也就是011...111启用前面所有选项
         if (isUint && mask == int.MaxValue) {
             mask = -1;
         }
+        // 绘制有作用的UI部分
         mask = EditorGUI.MaskField(
             position, label, mask,
             GraphicsSettings.currentRenderPipeline.renderingLayerMaskNames
