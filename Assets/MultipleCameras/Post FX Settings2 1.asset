@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a17ce0b6d93324690b0950121a2aa915, type: 3}
-  m_Name: Post FX Settings2
+  m_Name: Post FX Settings2 1
   m_EditorClassIdentifier: 
   postFXSettings: {fileID: 11400000}
   shader: {fileID: 4800000, guid: d4c0e276fc534c41b3f53fb0e8b743ce, type: 3}
@@ -18,25 +18,25 @@ MonoBehaviour:
     maxIterations: 16
     downscaleLimit: 45
     bicubicUpsampling: 1
-    threshold: 1.5
+    threshold: 1.14
     thresholdKnee: 1
-    intensity: 1
+    intensity: 0.5
     fadeFireflies: 1
     mode: 1
     scatter: 0.95
   colorAdjustments:
     postExposure: 0.5
     contrast: 0
-    colorFilter: {r: 1, g: 1, b: 1, a: 1}
+    colorFilter: {r: 1, g: 0.9936637, b: 0.9386792, a: 1}
     hueShift: 0
     saturation: 0
   whiteBalance:
     temprature: 0
     tint: 0
   splitToning:
-    shadows: {r: 0.15792987, g: 0.17699754, b: 0.1981132, a: 1}
-    hightlights: {r: 0.49056602, g: 0.4772563, b: 0.42346027, a: 1}
-    balance: -3
+    shadows: {r: 0.13536845, g: 0.19032574, b: 0.24528301, a: 1}
+    hightlights: {r: 0.5283019, g: 0.50197744, b: 0.3214667, a: 1}
+    balance: 0
   channelMixer:
     red: {x: 1, y: 0, z: 0}
     green: {x: 0, y: 1, z: 0}
@@ -50,4 +50,4 @@ MonoBehaviour:
     highLightsStart: 0.55
     highLightsEnd: 1
   toneMapping:
-    mode: 1
+    mode: 2
